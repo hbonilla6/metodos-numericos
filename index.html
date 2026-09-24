@@ -390,11 +390,25 @@
   }
 
   @media (shape: round){
-    body{ padding: 18% 15% 22%; }
-    .card{ padding: 14px 10px; }
-    .field-row{ flex-direction: column; }
-    .tabs{ justify-content: center; }
+    body{
+      padding: 20% 15%;
+      text-align: center;
+    }
+    .wrap{ width: 100%; }
+    .card{ padding: 10px 8px; }
+    .field-row{ flex-direction: column; gap: 8px; }
+    .field{ width: 100%; flex: none !important; }
+    input{ width: 100%; box-sizing: border-box; text-align: center; }
+    label{ text-align: center; }
+    .hint{ display: none; }
+    button{ width: 100%; }
     .btn-row{ justify-content: center; }
+    .tabs{ flex-wrap: wrap; justify-content: center; gap: 4px; }
+    .tab-btn{ flex: 1 1 42%; font-size: 0.68rem; padding: 6px 4px; }
+    .tab-iter{ display: block; margin-left: 0; }
+    th, td{ padding: 3px 4px; font-size: 0.65rem; }
+    .formula{ font-size: 0.8rem; }
+    .final-answer{ font-size: 0.85rem; padding: 8px; }
   }
 </style>
 </head>
