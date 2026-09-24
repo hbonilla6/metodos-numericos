@@ -440,6 +440,7 @@
 
     <div class="btn-row">
       <button onclick="actualizarTodo()">Generar tabla</button>
+      <button onclick="limpiarTodo()" style="background:#8a8578;">Limpiar</button>
     </div>
   </div>
 
@@ -1909,13 +1910,57 @@
     document.getElementById('explainBox').innerHTML = '<span class="tag">' + tag + '</span>' + html;
   }
 
+  const CAMPOS_GUARDADOS = ['fx', 'a', 'b', 'tol'];
+  const CLAVE_STORAGE = 'metodosNumericos_campos';
+
+  function guardarCampos(){
+    try{
+      const datos = {};
+      CAMPOS_GUARDADOS.forEach(id => { datos[id] = document.getElementById(id).value; });
+      localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    }catch(e){ /* localStorage no disponible: seguimos sin guardar, sin romper nada */ }
+  }
+
+  function restaurarCampos(){
+    try{
+      const guardado = localStorage.getItem(CLAVE_STORAGE);
+      if (!guardado) return false;
+      const datos = JSON.parse(guardado);
+      let huboAlgo = false;
+      CAMPOS_GUARDADOS.forEach(id => {
+        if (datos[id] !== undefined && datos[id] !== ''){
+          document.getElementById(id).value = datos[id];
+          huboAlgo = true;
+        }
+      });
+      return huboAlgo;
+    }catch(e){ return false; }
+  }
+
+  function limpiarTodo(){
+    CAMPOS_GUARDADOS.forEach(id => { document.getElementById(id).value = ''; });
+    try{ localStorage.removeItem(CLAVE_STORAGE); }catch(e){ /* nada que hacer */ }
+    modoManual = false;
+    document.getElementById('fxDisplay').innerHTML = '';
+    document.getElementById('derivDisplay').innerHTML = '';
+    document.getElementById('derivDisplay').style.display = 'none';
+    document.getElementById('finalAnswerBox').innerHTML = '';
+    setStatus('', null);
+    actualizarBadges(null);
+    actualizarContadores(null);
+    cambiarMetodo('bisec', true);
+  }
+
   window.onload = function(){
-    ['fx', 'a', 'b', 'tol'].forEach(id => {
+    CAMPOS_GUARDADOS.forEach(id => {
       document.getElementById(id).addEventListener('input', programarActualizacion);
+      document.getElementById(id).addEventListener('input', guardarCampos);
     });
     document.getElementById('fx').addEventListener('input', actualizarVistaPrevia);
     document.getElementById('fx').addEventListener('input', () => { modoManual = false; });
-    actualizarTodo();
+
+    restaurarCampos();
+    actualizarVistaPrevia();
   };
 </script>
 
