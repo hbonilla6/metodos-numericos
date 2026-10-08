@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Interpolación — Lagrange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #faf8f2;
+    --line: #d9d5c7;
+    --ink: #223a5e;
+    --ink-soft: #4a5b7a;
+    --red: #b23a34;
+    --red-soft: #f3e0de;
+    --green: #3f7d58;
+    --green-soft: #e2ede5;
+    --gold: #a1730f;
+    --gold-soft: #f5ecd7;
+    --muted: #7a7566;
+  }
+  *{ box-sizing: border-box; }
+  html{ overflow-x: hidden; }
+  body{
+    margin:0;
+    overflow-x: hidden;
+    font-family: 'Source Sans 3', sans-serif;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image:
+      repeating-linear-gradient(var(--line) 0 1px, transparent 1px 32px),
+      repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 32px);
+    background-size: 32px 32px;
+    min-height: 100vh;
+    padding: 32px 16px 80px;
+  }
+  .wrap{ max-width: 900px; width: 100%; margin: 0 auto; }
+
+  a.volver{
+    display: inline-block; margin-bottom: 14px;
+    font-weight: 600; font-size: 0.92rem; text-decoration: none;
+    color: var(--ink-soft); border-bottom: 1.5px dashed var(--ink-soft);
+  }
+  a.volver:hover{ color: var(--ink); border-bottom-color: var(--ink); }
+
+  .card{
+    background: #fff; border: 1px solid var(--line); border-radius: 4px;
+    padding: 20px; margin-bottom: 18px;
+    box-shadow: 0 1px 2px rgba(34,58,94,0.05);
+  }
+
+  .pt-row{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom: 12px; }
+  .pt-row:last-child{ margin-bottom: 0; }
+  .pt-label{ font-family:'Literata',serif; font-style: italic; color: var(--ink-soft); width: 60px; flex: 0 0 auto; }
+  input.coef{
+    width: 80px; text-align: center;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 1rem;
+    padding: 8px 6px;
+    border: 1.5px solid var(--line);
+    border-radius: 3px;
+    background: #fff;
+    color: var(--ink);
+  }
+  input.coef:focus{ outline: 2px solid var(--ink-soft); outline-offset: 1px; }
+  .pt-opcional{ font-size: 0.78rem; color: var(--muted); margin-left: 4px; }
+
+  .btn-row{ display:flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  button{
+    font-family: 'Source Sans 3', sans-serif; font-weight: 600; font-size: 0.95rem;
+    padding: 10px 18px; border: none; border-radius: 3px; cursor: pointer;
+    background: var(--ink); color: #fff;
+  }
+  button:hover{ background: #1a2e4a; }
+  button.secundario{ background: #8a8578; }
+  button.secundario:hover{ background: #6f6b60; }
+
+  #statusBox .status{ font-size: 0.95rem; padding: 10px 14px; border-radius: 3px; margin-bottom: 16px; }
+  #statusBox .status.error{ background: var(--red-soft); color: var(--red); border: 1px solid var(--red); }
+
+  .paso{ margin-bottom: 20px; }
+  .paso:last-child{ margin-bottom: 0; }
+  .paso-titulo{ font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin-bottom: 8px; }
+  .formula{ font-family:'Literata',serif; font-size: 1.05rem; line-height: 2; overflow-x: auto; }
+  .formula + .formula{ margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
+
+  .frac{ display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; margin:0 4px; font-size:0.9em; line-height:1.25; position:relative; top:0.12em; }
+  .frac .frac-num{ display:block; padding:0 4px 2px; border-bottom:1.5px solid currentColor; }
+  .frac .frac-den{ display:block; padding:2px 4px 0; }
+
+  .resultado{
+    margin-top: 10px; padding: 14px 18px; background: var(--green-soft);
+    border: 1px solid var(--green); border-radius: 3px; color: var(--green); font-weight: 700;
+    font-family:'Literata',serif; font-size: 1.15rem; text-align:center;
+  }
+
+  @media (max-width: 460px){
+    body{ padding: 20px 10px 60px; }
+    .card{ padding: 14px; }
+    input.coef{ width: 64px; font-size: 0.92rem; }
+    .formula{ font-size: 0.92rem; }
+  }
+  @media (max-width: 300px){
+    input.coef{ width: 52px; padding: 6px 2px; }
+  }
+  @media (shape: round){
+    body{ padding: 20% 15%; text-align:center; }
+    .pt-row{ justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <a class="volver" href="index.html">← Inicio</a>
+  <div class="card">
+    <p style="font-size:0.85rem; color:var(--muted); margin:0 0 10px;">2 puntos = interpolación lineal. 3 puntos = parabólica. Deja el tercer punto vacío si solo tienes 2.</p>
+    <div id="puntos"></div>
+    <div class="btn-row">
+      <button onclick="actualizarTodo()">Resolver</button>
+      <button class="secundario" onclick="limpiarTodo()">Limpiar</button>
+    </div>
+  </div>
+
+  <div id="statusBox"></div>
+
+  <div class="card" id="resultCard" style="display:none;">
+    <div id="pasos"></div>
+  </div>
+</div>
+
+<script>
+  // --- Motor de fracciones exactas y Lagrange (idéntico al probado en Node) ---
+
+  function gcdBig(a, b){ a = a<0n?-a:a; b = b<0n?-b:b; while(b){ [a,b]=[b,a%b]; } return a||1n; }
+
+  function Frac(num, den){
+    den = den===undefined ? 1n : den;
+    num = BigInt(num); den = BigInt(den);
+    if (den === 0n) throw new Error('División entre cero');
+    if (den < 0n){ num = -num; den = -den; }
+    const g = gcdBig(num, den);
+    return { n: num/g, d: den/g };
+  }
+  function fadd(a,b){ return Frac(a.n*b.d + b.n*a.d, a.d*b.d); }
+  function fsub(a,b){ return Frac(a.n*b.d - b.n*a.d, a.d*b.d); }
+  function fmul(a,b){ return Frac(a.n*b.n, a.d*b.d); }
+  function fdiv(a,b){ return Frac(a.n*b.d, a.d*b.n); }
+  function fneg(a){ return Frac(-a.n, a.d); }
+  function fIsZero(a){ return a.n === 0n; }
+  function fstr(a){ return a.d===1n ? a.n.toString() : a.n.toString()+'/'+a.d.toString(); }
+
+  function polyZero(grado){ return Array.from({length: grado+1}, () => Frac(0)); }
+  function polyAdd(p, q){
+    const n = Math.max(p.length, q.length);
+    const r = polyZero(n-1);
+    for (let i=0;i<n;i++) r[i] = fadd(p[i]||Frac(0), q[i]||Frac(0));
+    return r;
+  }
+  function polyScale(p, k){ return p.map(c => fmul(c,k)); }
+  function polyLinearFactor(a){ return [fneg(a), Frac(1)]; }
+  function polyMul(p, q){
+    const r = polyZero(p.length + q.length - 2);
+    for (let i=0;i<p.length;i++) for (let j=0;j<q.length;j++) r[i+j] = fadd(r[i+j], fmul(p[i], q[j]));
+    return r;
+  }
+
+  function lagrange(puntos){
+    const n = puntos.length;
+    const terminos = [];
+    let total = polyZero(n-1);
+    for (let i=0;i<n;i++){
+      const [xi, fi] = puntos[i];
+      let numPoly = [Frac(1)];
+      let denom = Frac(1);
+      for (let j=0;j<n;j++){
+        if (j===i) continue;
+        const [xj] = puntos[j];
+        numPoly = polyMul(numPoly, polyLinearFactor(Frac(xj)));
+        denom = fmul(denom, fsub(Frac(xi), Frac(xj)));
+      }
+      const coefTermino = fdiv(Frac(fi), denom);
+      const polyFinal = polyScale(numPoly, coefTermino);
+      terminos.push({ xi: Frac(xi), fi: Frac(fi), numPoly, denom, coefTermino, polyFinal });
+      total = polyAdd(total, polyFinal);
+    }
+    return { terminos, total, n };
+  }
+
+  const NPUNTOS = 3;
+
+  function construirGridPuntos(){
+    const cont = document.getElementById('puntos');
+    let html = '';
+    for (let i = 0; i < NPUNTOS; i++){
+      html += '<div class="pt-row">';
+      html += '<span class="pt-label">x' + i + ', f' + i + '</span>';
+      html += '<input class="coef" id="x' + i + '" placeholder="x" autocomplete="off">';
+      html += '<input class="coef" id="f' + i + '" placeholder="f(x)" autocomplete="off">';
+      if (i === 2) html += '<span class="pt-opcional">(opcional, solo si es parabólica)</span>';
+      html += '</div>';
+    }
+    cont.innerHTML = html;
+  }
+
+  function setStatus(msg, tipo){
+    if (!msg || !tipo){ document.getElementById('statusBox').innerHTML = ''; return; }
+    document.getElementById('statusBox').innerHTML = '<div class="status ' + tipo + '">' + msg + '</div>';
+  }
+
+  function fraccionHtml(frac){
+    if (frac.d === 1n) return frac.n.toString();
+    return '<span class="frac"><span class="frac-num">' + frac.n.toString() + '</span><span class="frac-den">' + frac.d.toString() + '</span></span>';
+  }
+
+  function signoYvalor(frac){
+    // Devuelve {signo:' + '|' − ', abs: Frac positiva}
+    if (frac.n < 0n) return { signo: ' − ', abs: Frac(-frac.n, frac.d) };
+    return { signo: ' + ', abs: frac };
+  }
+
+  function factorConVariable(xj){
+    // (x - xj), con el signo correcto
+    if (xj === 0) return '(x)';
+    return xj > 0 ? '(x − ' + xj + ')' : '(x + ' + (-xj) + ')';
+  }
+  function factorConstante(a, b){
+    // "(a − b)" literal, sin calcular todavía (como se ve primero en la pizarra)
+    return '(' + a + (b >= 0 ? ' − ' + b : ' + ' + (-b)) + ')';
+  }
+
+  function polyHtml(poly, variable){
+    // poly: [c0,c1,c2] -> c2 x^2 + c1 x + c0, formateado con signos
+    variable = variable || 'x';
+    const partes = [];
+    for (let grado = poly.length - 1; grado >= 0; grado--){
+      const c = poly[grado];
+      if (fIsZero(c)) continue;
+      const { signo, abs } = signoYvalor(c);
+      let termino = fraccionHtml(abs);
+      if (grado >= 1){
+        const esUno = abs.n === 1n && abs.d === 1n;
+        termino = (esUno ? '' : termino + '·') + variable + (grado > 1 ? '<sup>' + grado + '</sup>' : '');
+      }
+      partes.push({ signo, termino });
+    }
+    if (partes.length === 0) return '0';
+    let html = (partes[0].signo === ' − ' ? '−' : '') + partes[0].termino;
+    for (let i = 1; i < partes.length; i++) html += partes[i].signo + partes[i].termino;
+    return html;
+  }
+
+  function leerPuntos(){
+    const pares = [];
+    for (let i = 0; i < NPUNTOS; i++){
+      const xRaw = document.getElementById('x'+i).value;
+      const fRaw = document.getElementById('f'+i).value;
+      if (!xRaw.trim() && !fRaw.trim()) continue;
+      pares.push({ i, xRaw, fRaw });
+    }
+    return pares;
+  }
+
+  function generarProcedimiento(){
+    document.getElementById('statusBox').innerHTML = '';
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('pasos').innerHTML = '';
+
+    const presentes = leerPuntos();
+    if (presentes.length < 2){ setStatus('', null); return; }
+
+    // Validar que cada punto presente tenga AMBOS valores
+    for (const p of presentes){
+      if (!p.xRaw.trim() || !p.fRaw.trim()){
+        setStatus('Completa tanto x como f(x) en cada punto que uses.', 'error');
+        return;
+      }
+    }
+
+    let puntos;
+    try{
+      puntos = presentes.map(p => {
+        if (!/^-?\d+$/.test(p.xRaw.trim()) || !/^-?\d+$/.test(p.fRaw.trim())){
+          throw new Error('no entero');
+        }
+        return [parseInt(p.xRaw.trim(), 10), parseInt(p.fRaw.trim(), 10)];
+      });
+    }catch(err){
+      setStatus('Usa números enteros en x y f(x) (esta herramienta trabaja con fracciones exactas).', 'error');
+      return;
+    }
+
+    const xs = puntos.map(p => p[0]);
+    if (new Set(xs).size !== xs.length){
+      setStatus('Los valores de x deben ser distintos entre sí.', 'error');
+      return;
+    }
+
+    const resultado = lagrange(puntos);
+    renderProcedimiento(resultado, puntos);
+    document.getElementById('resultCard').style.display = 'block';
+  }
+
+  function renderProcedimiento(resultado, puntos){
+    const { terminos, total, n } = resultado;
+    let html = '';
+
+    // Paso 1: formula con los puntos sustituidos literalmente (como en la pizarra,
+    // antes de calcular nada)
+    html += '<div class="paso"><div class="paso-titulo">Fórmula de Lagrange con tus puntos</div><div class="formula">';
+    html += 'P(x) = ';
+    terminos.forEach((t, i) => {
+      if (i > 0) html += ' + ';
+      const numHtml = puntos.map((p, j) => j===i ? null : factorConVariable(p[0])).filter(Boolean).join('');
+      const denHtml = puntos.map((p, j) => j===i ? null : factorConstante(puntos[i][0], p[0])).filter(Boolean).join('');
+      html += fraccionHtml2(numHtml, denHtml) + '·(' + puntos[i][1] + ')';
+    });
+    html += '</div></div>';
+
+    // Paso 2: expandir cada termino (numerador expandido, denominador como numero)
+    html += '<div class="paso"><div class="paso-titulo">Expandiendo cada término</div>';
+    terminos.forEach((t, i) => {
+      const numExpandidoHtml = polyHtml(t.numPoly);
+      html += '<div class="formula">Término ' + (i+1) + ': ' + fraccionHtml2(numExpandidoHtml, fstr(t.denom)) + ' · (' + fraccionHtml(t.fi) + ')</div>';
+    });
+    html += '</div>';
+
+    // Paso 3: cada termino ya simplificado (multiplicado y dividido)
+    html += '<div class="paso"><div class="paso-titulo">Cada término simplificado</div>';
+    terminos.forEach((t, i) => {
+      html += '<div class="formula">Término ' + (i+1) + ' = ' + polyHtml(t.polyFinal) + '</div>';
+    });
+    html += '</div>';
+
+    // Paso 4: suma de terminos semejantes
+    if (terminos.length > 1){
+      html += '<div class="paso"><div class="paso-titulo">Sumando términos semejantes</div><div class="formula">';
+      html += 'P(x) = ' + terminos.map((t,i) => '(' + polyHtml(t.polyFinal) + ')').join(' + ');
+      html += '</div></div>';
+    }
+
+    // Resultado final
+    html += '<div class="resultado">P(x) = ' + polyHtml(total) + '</div>';
+
+    document.getElementById('pasos').innerHTML = html;
+  }
+
+  function fraccionHtml2(numHtml, denHtml){
+    return '<span class="frac"><span class="frac-num">' + numHtml + '</span><span class="frac-den">' + denHtml + '</span></span>';
+  }
+
+  // --- Persistencia ---------------------------------------------------------
+  const CLAVE_STORAGE = 'interpolacion_campos';
+  function idsCampos(){
+    const ids = [];
+    for (let i = 0; i < NPUNTOS; i++){ ids.push('x'+i); ids.push('f'+i); }
+    return ids;
+  }
+  function guardarCampos(){
+    try{
+      const datos = {};
+      idsCampos().forEach(id => { datos[id] = document.getElementById(id).value; });
+      localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datos));
+    }catch(e){}
+  }
+  function restaurarCampos(){
+    try{
+      const guardado = localStorage.getItem(CLAVE_STORAGE);
+      if (!guardado) return;
+      const datos = JSON.parse(guardado);
+      idsCampos().forEach(id => { if (datos[id] !== undefined) document.getElementById(id).value = datos[id]; });
+    }catch(e){}
+  }
+  function limpiarTodo(){
+    idsCampos().forEach(id => { document.getElementById(id).value = ''; });
+    try{ localStorage.removeItem(CLAVE_STORAGE); }catch(e){}
+    document.getElementById('resultCard').style.display = 'none';
+    document.getElementById('pasos').innerHTML = '';
+    setStatus('', null);
+  }
+
+  function actualizarTodo(){ generarProcedimiento(); }
+
+  let debounceActualizacion = null;
+  function programarActualizacion(){
+    clearTimeout(debounceActualizacion);
+    debounceActualizacion = setTimeout(actualizarTodo, 500);
+  }
+
+  window.onload = function(){
+    construirGridPuntos();
+    idsCampos().forEach(id => {
+      document.getElementById(id).addEventListener('input', () => { guardarCampos(); programarActualizacion(); });
+    });
+    restaurarCampos();
+  };
+</script>
+
+</body>
+</html>
