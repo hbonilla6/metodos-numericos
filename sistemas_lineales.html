@@ -114,6 +114,15 @@
   .badge-star{ color: var(--gold); margin-left: 3px; font-size: 0.8rem; display:none; }
   .badge-star.show{ display:inline; }
 
+  #resultTable:not(.expandida) tr.fila-extra{ display: none; }
+  .expandir-box{ margin-top: 10px; text-align: center; }
+  .expandir-box button{ background: #fffdf8; color: var(--ink); border: 1.5px dashed var(--ink-soft); }
+  .expandir-box button:hover{ background: #f2efe6; }
+  .veredicto{ padding: 10px 14px; border-radius: 3px; margin-bottom: 14px; font-size: 0.95rem; line-height: 1.5; border: 1.5px solid; }
+  .veredicto strong{ font-family:'Literata',serif; font-size: 1.1rem; }
+  .veredicto.converge{ background: var(--green-soft); border-color: var(--green); color: #275c3d; }
+  .veredicto.lento{ background: var(--gold-soft); border-color: var(--gold); color: #6b4d09; }
+  .veredicto.diverge{ background: var(--red-soft); border-color: var(--red); color: var(--red); }
   .orden-box{ font-size: 0.98rem; margin-bottom: 14px; }
   .orden-box .orden-titulo{ font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin-bottom: 4px; }
   .orden-box .orden-de{ font-family:'Source Sans 3',sans-serif; font-size: 0.8rem; color: var(--muted); margin-left: 8px; }
@@ -222,6 +231,7 @@
   </div>
 
   <div class="card" id="resultCard" style="display:none; border-top-left-radius:0;">
+    <div id="veredicto"></div>
     <div class="orden-box" id="ordenBox"></div>
     <label class="opcion-error"><input type="checkbox" id="chkError" checked onchange="aplicarMostrarError()"> Mostrar error</label>
     <div class="table-scroll">
@@ -230,6 +240,7 @@
         <tbody id="tableBody"></tbody>
       </table>
     </div>
+    <div class="expandir-box" id="expandirBox"></div>
     <div class="explain" id="explainBox"></div>
     <div id="finalAnswerBox"></div>
   </div>
@@ -240,8 +251,8 @@
 
   const N = 3; // 3 ecuaciones, 3 incógnitas: x, y, z
   const NOMBRES_VAR = ['x', 'y', 'z'];
-  const MAX_IT = 150;    // tope para buscar convergencia (igual que antes)
-  const MAX_MOSTRAR = 15; // si no converge, se muestran solo 15 iteraciones y nos damos por vencidos
+  const MAX_IT = 150;       // tope absoluto mientras los valores sigan acercándose
+  const ITER_CONTROL = 15;  // regla del profesor: en la iteración 15 se revisa si los valores se están acercando; si no, nos damos por vencidos
   const TOL = new Decimal('1e-7');
   const FIELD_ORDER = ['v0', 'v1', 'v2', 'error'];
 
@@ -415,6 +426,11 @@
       filas.push({ it, x: nuevo, error, diverge: false });
       x = nuevo;
       if (error.lessThan(tol)) return { filas, estado: 'convergio', Ar, br };
+      if (it === ITER_CONTROL){
+        // ¿el error de la iteración 15 es menor que el de la 12? Si no, no se acerca ni por cerca.
+        const e12 = filas[it - 4].error;
+        if (e12 !== null && !error.lessThan(e12)) return { filas, estado: 'diverge', sinAcercarse: true, Ar, br };
+      }
     }
     return { filas, estado: 'maximo', Ar, br };
   }
@@ -753,6 +769,7 @@
     filasTabla.forEach((fila, idx) => {
       if (idx === 0) return; // los valores iniciales no se muestran como fila
       const tr = document.createElement('tr');
+      if (idx > ITER_CONTROL) tr.classList.add('fila-extra');
       const esFinal = idx === ultimoIdx && resultado.estado === 'convergio';
       if (esFinal) tr.classList.add('final-row');
       let tds = '<td class="it-col">' + fila.it + '</td>';
@@ -767,6 +784,26 @@
     document.querySelectorAll('#resultTable td.clickable').forEach(td => {
       td.addEventListener('click', () => seleccionarCelda(td.dataset.campo, parseInt(td.dataset.idx)));
     });
+
+    // Se muestran las primeras ITER_CONTROL iteraciones; el resto se puede expandir
+    document.getElementById('resultTable').classList.remove('expandida');
+    const extra = ultimoIdx - ITER_CONTROL;
+    const box = document.getElementById('expandirBox');
+    if (extra > 0){
+      box.innerHTML = '<button type="button" id="btnExpandir" onclick="alternarExpandir()">Ver ' + (extra === 1 ? 'la iteración restante (' : 'las ' + extra + ' iteraciones restantes (') + (ITER_CONTROL + 1) + '–' + ultimoIdx + ')</button>';
+    } else {
+      box.innerHTML = '';
+    }
+  }
+
+  function alternarExpandir(){
+    const tabla = document.getElementById('resultTable');
+    const abierta = tabla.classList.toggle('expandida');
+    const ultimoIdx = filasTabla.length - 1;
+    const extra = ultimoIdx - ITER_CONTROL;
+    document.getElementById('btnExpandir').textContent = abierta
+      ? 'Mostrar solo las primeras ' + ITER_CONTROL
+      : 'Ver ' + (extra === 1 ? 'la iteración restante (' : 'las ' + extra + ' iteraciones restantes (') + (ITER_CONTROL + 1) + '–' + ultimoIdx + ')';
   }
 
   function mostrarExplicacion(campo, idx){
@@ -831,6 +868,8 @@
     document.getElementById('resultCard').style.display = 'none';
     document.getElementById('finalAnswerBox').innerHTML = '';
     document.getElementById('explainBox').innerHTML = '';
+    document.getElementById('veredicto').innerHTML = '';
+    document.getElementById('expandirBox').innerHTML = '';
   }
 
   function generarTabla(){
@@ -861,10 +900,6 @@
     resActual = { Ar: resultado.Ar, br: resultado.br, perm: compartido.perm, estado: resultado.estado };
     filasTabla = [{ it: 0, x: Array.from({ length: N }, () => new Decimal(0)), error: null, diverge: false }].concat(resultado.filas);
 
-    if (resultado.estado !== 'convergio' && filasTabla.length > MAX_MOSTRAR + 1){
-      filasTabla = filasTabla.slice(0, MAX_MOSTRAR + 1);
-    }
-
     construirAdjacencia();
     document.getElementById('ordenBox').innerHTML = renderOrden(compartido.estricta);
     renderTabla(resultado);
@@ -873,13 +908,18 @@
 
     const nombre = metodoActual === 'jacobi' ? 'Jacobi' : 'Gauss-Seidel';
     const ultima = filasTabla[filasTabla.length - 1];
-    if (resultado.estado === 'diverge'){
-      setStatus('Diverge con ' + nombre + ': los valores crecen sin control (se detuvo en la iteración ' + ultima.it + '). Ningún orden de las ecuaciones lo estabiliza.', 'error');
-    } else if (resultado.estado === 'maximo'){
-      setStatus('Con ' + nombre + ' no se llegó a la tolerancia (se probó hasta ' + MAX_IT + ' iteraciones). Se muestran las primeras ' + MAX_MOSTRAR + ' (error en la última: ' + fmt(ultima.error) + ') y nos damos por vencidos: el sistema no converge o lo hace demasiado lento.', 'error');
-    } else {
+    const ver = document.getElementById('veredicto');
+    if (resultado.estado === 'convergio'){
+      ver.innerHTML = '<div class="veredicto converge"><strong>Converge</strong> — ' + nombre + ' llegó a la tolerancia en ' + (filasTabla.length - 1) + ' iteraciones.' + (filasTabla.length - 1 > ITER_CONTROL ? ' Se muestran las primeras ' + ITER_CONTROL + '; puedes expandir para ver el resto.' : '') + '</div>';
       const vector = NOMBRES_VAR.map((v, j) => v + ' ≈ <strong>' + fmt(ultima.x[j].toDecimalPlaces(6)) + '</strong>').join(',&nbsp;&nbsp;');
       document.getElementById('finalAnswerBox').innerHTML = '<div class="final-answer">' + vector + '</div>';
+    } else if (resultado.estado === 'diverge'){
+      const motivo = resultado.sinAcercarse
+        ? 'en la iteración ' + ITER_CONTROL + ' los valores no se acercan a la solución (el error no baja, es ' + fmt(ultima.error) + ')'
+        : 'los valores crecen sin control (se detuvo en la iteración ' + ultima.it + ')';
+      ver.innerHTML = '<div class="veredicto diverge"><strong>Diverge</strong> — con ' + nombre + ' ' + motivo + '. Nos damos por vencidos aquí; ningún orden de las ecuaciones lo arregla.</div>';
+    } else {
+      ver.innerHTML = '<div class="veredicto lento"><strong>Converge, pero muy lento</strong> — tras ' + MAX_IT + ' iteraciones ' + nombre + ' sigue acercándose pero aún no llega a la tolerancia (error ' + fmt(ultima.error) + ').</div>';
     }
   }
 
