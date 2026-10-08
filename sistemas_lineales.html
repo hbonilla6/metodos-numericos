@@ -253,6 +253,7 @@
   const NOMBRES_VAR = ['x', 'y', 'z'];
   const MAX_IT = 150;       // tope absoluto mientras los valores sigan acercándose
   const ITER_CONTROL = 15;  // regla del profesor: en la iteración 15 se revisa si los valores se están acercando; si no, nos damos por vencidos
+  const MOSTRAR_TODO_HASTA = 25; // si la respuesta aparece hasta esta iteración, se muestra completa; si tarda más, se pliega a ITER_CONTROL con botón para expandir
   const TOL = new Decimal('1e-7');
   const FIELD_ORDER = ['v0', 'v1', 'v2', 'error'];
 
@@ -766,10 +767,11 @@
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
     const ultimoIdx = filasTabla.length - 1;
+    const plegar = ultimoIdx > MOSTRAR_TODO_HASTA;
     filasTabla.forEach((fila, idx) => {
       if (idx === 0) return; // los valores iniciales no se muestran como fila
       const tr = document.createElement('tr');
-      if (idx > ITER_CONTROL) tr.classList.add('fila-extra');
+      if (plegar && idx > ITER_CONTROL) tr.classList.add('fila-extra');
       const esFinal = idx === ultimoIdx && resultado.estado === 'convergio';
       if (esFinal) tr.classList.add('final-row');
       let tds = '<td class="it-col">' + fila.it + '</td>';
@@ -789,7 +791,7 @@
     document.getElementById('resultTable').classList.remove('expandida');
     const extra = ultimoIdx - ITER_CONTROL;
     const box = document.getElementById('expandirBox');
-    if (extra > 0){
+    if (plegar){
       box.innerHTML = '<button type="button" id="btnExpandir" onclick="alternarExpandir()">Ver ' + (extra === 1 ? 'la iteración restante (' : 'las ' + extra + ' iteraciones restantes (') + (ITER_CONTROL + 1) + '–' + ultimoIdx + ')</button>';
     } else {
       box.innerHTML = '';
@@ -910,7 +912,7 @@
     const ultima = filasTabla[filasTabla.length - 1];
     const ver = document.getElementById('veredicto');
     if (resultado.estado === 'convergio'){
-      ver.innerHTML = '<div class="veredicto converge"><strong>Converge</strong> — ' + nombre + ' llegó a la tolerancia en ' + (filasTabla.length - 1) + ' iteraciones.' + (filasTabla.length - 1 > ITER_CONTROL ? ' Se muestran las primeras ' + ITER_CONTROL + '; puedes expandir para ver el resto.' : '') + '</div>';
+      ver.innerHTML = '<div class="veredicto converge"><strong>Converge</strong> — ' + nombre + ' llegó a la tolerancia en ' + (filasTabla.length - 1) + ' iteraciones.' + (filasTabla.length - 1 > MOSTRAR_TODO_HASTA ? ' Se muestran las primeras ' + ITER_CONTROL + '; puedes expandir para ver el resto.' : '') + '</div>';
       const vector = NOMBRES_VAR.map((v, j) => v + ' ≈ <strong>' + fmt(ultima.x[j].toDecimalPlaces(6)) + '</strong>').join(',&nbsp;&nbsp;');
       document.getElementById('finalAnswerBox').innerHTML = '<div class="final-answer">' + vector + '</div>';
     } else if (resultado.estado === 'diverge'){
