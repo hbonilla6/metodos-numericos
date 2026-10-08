@@ -123,6 +123,17 @@
   .veredicto.converge{ background: var(--green-soft); border-color: var(--green); color: #275c3d; }
   .veredicto.lento{ background: var(--gold-soft); border-color: var(--gold); color: #6b4d09; }
   .veredicto.diverge{ background: var(--red-soft); border-color: var(--red); color: var(--red); }
+  .diag-term{ color: var(--red); font-weight: 700; }
+  .diag-term .input-link{ color: var(--red); border-bottom-color: var(--red); }
+  .diag-sistemas{ display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin: 8px 0 12px; }
+  .diag-sistemas .col{ flex: 0 1 auto; min-width: 0; overflow-x: auto; }
+  .diag-sistemas .col-etq{ font-family:'Source Sans 3',sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); display:block; }
+  .diag-sistemas .flecha{ font-size: 1.6rem; color: var(--ink-soft); }
+  .diag-sistemas .fila-eq{ font-family:'Literata',serif; font-size: 1.08rem; line-height: 1.9; white-space: nowrap; }
+  .diag-ok{ color: var(--green); font-weight: 700; }
+  .diag-mal{ color: var(--red); font-weight: 700; }
+  .orden-box .orden-intro{ font-size: 0.9rem; color: var(--ink-soft); margin: 0 0 6px; }
+  .orden-box .bloque-diag{ margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px dashed var(--line); }
   .orden-box{ font-size: 0.98rem; margin-bottom: 14px; }
   .orden-box .orden-titulo{ font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin-bottom: 4px; }
   .orden-box .orden-de{ font-family:'Source Sans 3',sans-serif; font-size: 0.8rem; color: var(--muted); margin-left: 8px; }
@@ -368,11 +379,18 @@
     const perms = generarPermutaciones(A.length);
     const evaluadas = perms.map(perm => {
       const { estricta, score } = puntajeDominancia(A, perm);
-      return { perm, estricta, score };
+      return { perm, estricta, score, diag: perm.map((o, v) => A[o][v].abs()) };
     });
     evaluadas.sort((a, b) => {
       if (a.estricta !== b.estricta) return a.estricta ? -1 : 1;
-      return b.score.minus(a.score).toNumber();
+      const dScore = b.score.minus(a.score).toNumber();
+      if (dScore !== 0) return dScore;
+      // empate: como a mano, el coeficiente mayor primero en x, luego en y, luego en z
+      for (let v = 0; v < a.diag.length; v++){
+        const d = b.diag[v].minus(a.diag[v]).toNumber();
+        if (d !== 0) return d;
+      }
+      return 0;
     });
     return evaluadas;
   }
@@ -475,6 +493,54 @@
       }
     }
     return mejorConvergente || mejorRespaldo;
+  }
+
+  // Orden "de clase": si alguna ordenación deja la diagonal estrictamente dominante, esa;
+  // si no, se asigna a x la fila con el mayor |coeficiente de x|, luego a y entre las que quedan, y z la última.
+  function ordenDeClase(A){
+    const cand = candidatosDeOrden(A);
+    if (cand[0].estricta) return cand[0].perm;
+    const usadas = new Set(), perm = [];
+    for (let v = 0; v < A.length; v++){
+      let mejor = -1;
+      for (let i = 0; i < A.length; i++){
+        if (usadas.has(i)) continue;
+        if (mejor < 0 || A[i][v].abs().greaterThan(A[mejor][v].abs())) mejor = i;
+      }
+      perm.push(mejor);
+      usadas.add(mejor);
+    }
+    return perm;
+  }
+
+  let usarAlternativo = false; // true = el usuario pidió probar otro orden que sí converge
+
+  // Usa el orden de clase. Si con él ningún método converge, guarda como "alternativo"
+  // un orden que sí funciona y se puede activar con un botón.
+  function elegirOrdenUsuario(A, b){
+    const perm = ordenDeClase(A);
+    const info = {
+      perm, estricta: puntajeDominancia(A, perm).estricta,
+      jacobi: correrMetodoSistema('jacobi', A, b, perm, TOL, MAX_IT),
+      gauss: correrMetodoSistema('gauss', A, b, perm, TOL, MAX_IT),
+      alternativo: null, esAlternativo: false
+    };
+    if (info.jacobi.estado !== 'convergio' && info.gauss.estado !== 'convergio'){
+      const alt = elegirOrdenCompartido(A, b, TOL, MAX_IT);
+      if (alt && alt.perm.join() !== perm.join() && (alt.jacobi.estado === 'convergio' || alt.gauss.estado === 'convergio')){
+        info.alternativo = alt;
+        if (usarAlternativo){
+          alt.alternativo = alt; alt.esAlternativo = true; alt.perm0 = perm;
+          return alt;
+        }
+      }
+    }
+    return info;
+  }
+
+  function alternarOrden(){
+    usarAlternativo = !usarAlternativo;
+    actualizarTodo();
   }
 
   // --- Lectura de entradas / validación -----------------------------------
@@ -730,7 +796,7 @@
     return { html: unirTerminos(partes), numerador };
   }
 
-  function ecuacionHtml(v){
+  function ecuacionHtml(v, resaltarDiag){
     const { Ar, br, perm } = resActual;
     const orig = perm[v], fila = Ar[v];
     let s = '';
@@ -741,14 +807,52 @@
       const coef = abs.equals(1) ? '' : refInput('a' + orig + j, fmt(abs));
       const neg = c.isNegative();
       s += s === '' ? (neg ? '−' : '') : (neg ? ' − ' : ' + ');
-      s += coef + '<i>' + NOMBRES_VAR[j] + '</i>';
+      const termino = coef + '<i>' + NOMBRES_VAR[j] + '</i>';
+      s += (resaltarDiag && j === v) ? '<span class="diag-term">' + termino + '</span>' : termino;
     }
     return (s || '0') + ' = ' + refInput('b' + orig, fmt(br[v]));
   }
 
+  // Paso previo del método: acomodar las ecuaciones para que los coeficientes mayores queden en la diagonal
+  function renderDiagonal(estricta){
+    const { Ar, perm } = resActual;
+    const reordenado = perm.some((o, v) => o !== v);
+    let html = '<div class="bloque-diag"><div class="orden-titulo">Buscando la diagonal dominante</div>' +
+      '<p class="orden-intro">' + (reordenado
+        ? 'Reordeno las ecuaciones para que el coeficiente más grande de cada incógnita quede en la diagonal (x en la 1.ª fila, y en la 2.ª, z en la 3.ª).'
+        : 'Las ecuaciones ya están en un orden que deja los coeficientes de la diagonal lo más grandes posible.') +
+      ' En cada fila debe cumplirse |diagonal| &gt; suma de |los demás|.</p>';
+    // Sistema original  →  sistema reordenado (diagonal en rojo), como se hace a mano
+    let orig = '', nuevo = '';
+    for (let k = 0; k < N; k++){
+      const vk = perm.indexOf(k);
+      orig += '<div class="fila-eq">' + ecuacionHtml(vk, false) + '</div>';
+    }
+    for (let v = 0; v < N; v++){
+      nuevo += '<div class="fila-eq">' + ecuacionHtml(v, true) + '</div>';
+    }
+    html += '<div class="diag-sistemas">' +
+      '<div class="col"><span class="col-etq">Original</span>' + orig + '</div>' +
+      '<div class="flecha">→</div>' +
+      '<div class="col"><span class="col-etq">Con la diagonal acomodada</span>' + nuevo + '</div></div>';
+    for (let v = 0; v < N; v++){
+      const fila = Ar[v];
+      const diag = fila[v].abs();
+      const otros = [];
+      for (let j = 0; j < N; j++) if (j !== v) otros.push(fila[j].abs());
+      const suma = otros.reduce((a, c) => a.plus(c), new Decimal(0));
+      const ok = diag.greaterThan(suma);
+      const barras = d => '|' + fmt(d) + '|';
+      html += '<div class="formula">' + (perm[v] !== v ? '<span class="formula-etq">Fila ' + (v + 1) + ' (era la ecuación ' + (perm[v] + 1) + ')</span>' : '<span class="formula-etq">Fila ' + (v + 1) + '</span>') + barras(diag) + ' &gt; ' + otros.map(barras).join(' + ') +
+              ' &nbsp;→&nbsp; ' + fmt(diag) + ' &gt; ' + fmt(suma) + ' &nbsp;' +
+              (ok ? '<span class="diag-ok">✓ cumple</span>' : '<span class="diag-mal">✗ no cumple</span>') + '</div>';
+    }
+    return html + '</div>';
+  }
+
   function renderOrden(estricta){
     const { Ar, perm } = resActual;
-    let html = '<div class="orden-titulo">Despeje de cada variable</div>';
+    let html = renderDiagonal(estricta) + '<div class="orden-titulo">Despeje de cada variable</div>';
     for (let v = 0; v < N; v++){
       const t = terminosDespeje(v, 'sim');
       html += '<div class="formula"><i>' + NOMBRES_VAR[v] + '</i> = ' + fraccion(t.html, refInput('a' + perm[v] + v, fmt(Ar[v][v]))) +
@@ -893,7 +997,7 @@
       return;
     }
 
-    const compartido = elegirOrdenCompartido(A, b, TOL, MAX_IT);
+    const compartido = elegirOrdenUsuario(A, b);
     if (!compartido){
       setStatus('No se pudo resolver este sistema.', 'error');
       return;
@@ -919,9 +1023,16 @@
       const motivo = resultado.sinAcercarse
         ? 'en la iteración ' + ITER_CONTROL + ' los valores no se acercan a la solución (el error no baja, es ' + fmt(ultima.error) + ')'
         : 'los valores crecen sin control (se detuvo en la iteración ' + ultima.it + ')';
-      ver.innerHTML = '<div class="veredicto diverge"><strong>Diverge</strong> — con ' + nombre + ' ' + motivo + '. Nos damos por vencidos aquí; ningún orden de las ecuaciones lo arregla.</div>';
+      ver.innerHTML = '<div class="veredicto diverge"><strong>Diverge</strong> — con ' + nombre + ' ' + motivo + '. Nos damos por vencidos aquí.</div>';
     } else {
       ver.innerHTML = '<div class="veredicto lento"><strong>Converge, pero muy lento</strong> — tras ' + MAX_IT + ' iteraciones ' + nombre + ' sigue acercándose pero aún no llega a la tolerancia (error ' + fmt(ultima.error) + ').</div>';
+    }
+    // Otro orden de ecuaciones: ofrecerlo si el de clase falla, o permitir volver a él
+    const ordenTxt = o => '(' + o.map(k => k + 1).join(', ') + ')';
+    if (compartido.esAlternativo){
+      ver.innerHTML += '<div class="veredicto lento">Estás viendo un orden distinto al de clase: ecuaciones ' + ordenTxt(compartido.perm) + '. <button type="button" class="secundario" onclick="alternarOrden()">Volver al orden de clase ' + ordenTxt(compartido.perm0) + '</button></div>';
+    } else if (compartido.alternativo){
+      ver.innerHTML += '<div class="veredicto lento">Con otro orden de las ecuaciones ' + ordenTxt(compartido.alternativo.perm) + ' sí se llega a la solución. <button type="button" onclick="alternarOrden()">Probar ese orden</button></div>';
     }
   }
 
@@ -931,7 +1042,7 @@
     let A, b;
     try{ ({ A, b } = parsearSistema(vals)); } catch(e){ return null; }
     if (esSingular(A)) return null;
-    const compartido = elegirOrdenCompartido(A, b, TOL, MAX_IT);
+    const compartido = elegirOrdenUsuario(A, b);
     if (!compartido) return null;
     return { jacobi: compartido.jacobi, gauss: compartido.gauss };
   }
@@ -1045,7 +1156,7 @@
   window.onload = function(){
     construirGridEcuaciones();
     idsCampos().forEach(id => {
-      document.getElementById(id).addEventListener('input', () => { modoManual = false; guardarCampos(); renderVistaPrevia(); programarActualizacion(); });
+      document.getElementById(id).addEventListener('input', () => { modoManual = false; usarAlternativo = false; guardarCampos(); renderVistaPrevia(); programarActualizacion(); });
     });
     restaurarCampos();
     restaurarMostrarError();
