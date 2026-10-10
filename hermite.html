@@ -3,11 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Interpolación — Lagrange</title>
+<title>Interpolación — Hermite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Literata:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/interpolacion.css">
+<link rel="stylesheet" href="css/hermite.css">
 </head>
 <body>
 
@@ -15,7 +16,7 @@
   <a class="volver" href="index.html">← Inicio</a>
 
   <div class="card">
-    <p class="nota-campos">2 puntos = interpolación lineal. 3 puntos = parabólica. Deja el tercer punto vacío si solo tienes 2.</p>
+    <p class="nota-campos">Escribe cada punto con su valor f(x) y su derivada f'(x). Con 2 puntos el polinomio es de grado 3; con 3 puntos, de grado 5. El tercer punto es opcional.</p>
     <div id="puntos"></div>
     <div class="btn-row">
       <button id="btnResolver">Resolver</button>
@@ -24,6 +25,17 @@
   </div>
 
   <div id="statusBox"></div>
+
+  <div class="card" id="tablaCard" style="display:none;">
+    <h2 class="titulo-seccion">Tabla de diferencias divididas</h2>
+    <div class="table-scroll">
+      <table class="tabla-resultado" id="resultTable">
+        <thead><tr id="headRow"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="explain" id="explainBox"></div>
+  </div>
 
   <div class="card" id="resultCard" style="display:none;">
     <div id="pasos"></div>
@@ -40,10 +52,14 @@
 <script src="js/comun/algebra-exacta.js"></script>
 <script src="js/comun/utilidades.js"></script>
 <script src="js/comun/almacenamiento.js"></script>
+<script src="js/comun/tabla-interactiva.js"></script>
 <script src="js/comun/grafica.js"></script>
-<script src="js/interpolacion/lagrange.js"></script>
-<script src="js/interpolacion/presentacion.js"></script>
-<script src="js/interpolacion/grafica.js"></script>
-<script src="js/interpolacion/pagina.js"></script>
+<script src="js/hermite/diferencias.js"></script>
+<script src="js/hermite/estado.js"></script>
+<script src="js/hermite/tabla.js"></script>
+<script src="js/hermite/explicaciones.js"></script>
+<script src="js/hermite/presentacion.js"></script>
+<script src="js/hermite/grafica.js"></script>
+<script src="js/hermite/pagina.js"></script>
 </body>
 </html>
