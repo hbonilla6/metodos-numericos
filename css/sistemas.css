@@ -1,0 +1,122 @@
+/* Estilos propios de la página de sistemas de ecuaciones */
+
+/* ---------- Campos del sistema ---------- */
+
+.eq-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-family: 'Literata', serif;
+  font-size: 1.05rem;
+}
+.eq-row:last-child { margin-bottom: 0; }
+.eq-num { color: var(--muted); font-size: 0.8rem; width: 16px; flex: 0 0 auto; }
+.var-label { font-style: italic; }
+.op { color: var(--muted); }
+
+input.coef { width: 56px; text-align: center; padding: 7px 4px; }
+
+.nota-campos { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+
+/* Vista previa: cómo queda escrito el sistema */
+.vista-previa {
+  font-family: 'Literata', serif;
+  font-size: 1.15rem;
+  line-height: 1.9;
+  margin-top: 14px;
+  padding: 12px 16px;
+  background: #f2efe6;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink);
+  overflow-x: auto;
+}
+.vista-previa .vp-titulo {
+  display: block;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+.vista-previa .vp-fila { white-space: nowrap; }
+.vista-previa .vp-mal { color: var(--red); border-bottom: 1.5px dotted var(--red); }
+
+/* ---------- Veredicto y filas plegadas ---------- */
+
+.veredicto {
+  padding: 10px 14px;
+  border-radius: 3px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  border: 1.5px solid;
+}
+.veredicto strong { font-family: 'Literata', serif; font-size: 1.1rem; }
+.veredicto.converge { background: var(--green-soft); border-color: var(--green); color: #275c3d; }
+.veredicto.lento { background: var(--gold-soft); border-color: var(--gold); color: #6b4d09; }
+.veredicto.diverge { background: var(--red-soft); border-color: var(--red); color: var(--red); }
+
+#resultTable:not(.expandida) tr.fila-extra { display: none; }
+.expandir-box { margin-top: 10px; text-align: center; }
+.expandir-box button { background: #fffdf8; color: var(--ink); border: 1.5px dashed var(--ink-soft); }
+.expandir-box button:hover { background: #f2efe6; }
+
+/* ---------- Diagonal dominante y despeje ---------- */
+
+.orden-box { font-size: 0.98rem; margin-bottom: 14px; }
+.orden-box .orden-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.orden-box .orden-intro { font-size: 0.9rem; color: var(--ink-soft); margin: 0 0 6px; }
+.orden-box .orden-de { font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; color: var(--muted); margin-left: 8px; }
+.orden-box .bloque-diag { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px dashed var(--line); }
+.orden-box .aviso {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  border-left: 3px solid var(--gold);
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.diag-term { color: var(--red); font-weight: 700; }
+.diag-term .input-link { color: var(--red); border-bottom-color: var(--red); }
+.diag-ok { color: var(--green); font-weight: 700; }
+.diag-mal { color: var(--red); font-weight: 700; }
+
+.diag-sistemas { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin: 8px 0 12px; }
+.diag-sistemas .col { flex: 0 1 auto; min-width: 0; overflow-x: auto; }
+.diag-sistemas .col-etq {
+  display: block;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+.diag-sistemas .flecha { font-size: 1.6rem; color: var(--ink-soft); }
+.diag-sistemas .fila-eq { font-family: 'Literata', serif; font-size: 1.08rem; line-height: 1.9; white-space: nowrap; }
+
+/* ---------- Pantallas pequeñas ---------- */
+
+@media (max-width: 460px) {
+  input.coef { width: 48px; font-size: 0.92rem; }
+  .eq-row { font-size: 0.95rem; gap: 4px; }
+}
+@media (max-width: 300px) {
+  input.coef { width: 40px; padding: 6px 2px; }
+  .eq-row { font-size: 0.85rem; }
+}
+@media (shape: round) {
+  .eq-row { justify-content: center; }
+}
