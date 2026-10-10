@@ -1,0 +1,58 @@
+/* Estilos propios de la página de raíces de ecuaciones */
+
+/* ---------- Campos: f(x), a, b y tolerancia ---------- */
+
+.field-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 14px; }
+.field { flex: 1 1 160px; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.field.field-fx { flex: 2 1 260px; }
+.field.field-corto { flex: 1 1 90px; }
+.field.field-tol { flex: 1 1 130px; }
+
+/* ---------- Fórmulas de f(x), g(x) y derivada ---------- */
+
+.fx-display {
+  font-family: 'Literata', serif;
+  font-size: 1.25rem;
+  text-align: center;
+  padding: 12px 14px;
+  margin-top: 10px;
+  background: #f2efe6;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink);
+  min-height: 1.6em;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.fx-display.apoyo { margin-top: 8px; }
+.fx-display .formula-chica { font-size: 0.85em; }
+.fx-display .hint-bloque { display: block; margin-top: 4px; }
+.flecha-tenue { opacity: 0.6; }
+
+/* Número de f(x) que parpadea cuando una explicación lo señala */
+.fx-token { padding: 1px 3px; border-radius: 3px; transition: background 0.2s ease, color 0.2s ease; }
+.fx-token.token-flash { background: var(--red); color: #fff; animation: pulsoSimbolo 1.1s ease-in-out; }
+@keyframes pulsoSimbolo { 0%, 100% { transform: scale(1); } 30% { transform: scale(1.35); } }
+
+/* ---------- Columnas que un método no usa ---------- */
+
+#resultTable.oculta-b .col-b,
+#resultTable.oculta-fb .col-fb,
+#resultTable.oculta-fxi .col-fxi,
+#resultTable.oculta-xi .col-xi { display: none; }
+
+/* ---------- Pantallas pequeñas ---------- */
+
+@media (max-width: 460px) {
+  .field-row { gap: 10px; }
+  .field { flex-basis: 100% !important; }
+}
+
+@media (max-width: 300px) {
+  .field-row { gap: 8px; }
+}
+
+@media (shape: round) {
+  .field-row { flex-direction: column; gap: 8px; }
+  .field { width: 100%; flex: none !important; }
+}
