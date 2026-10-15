@@ -54,9 +54,11 @@ function dibujarTablaDeDiferencias() {
   let filas = '';
   z.forEach((valorDeZ, fila) => {
     filas += '<tr><td class="it-col">' + fila + '</td><td>' + String(valorDeZ).replace('-', '−') + '</td>';
+    // Cada diferencia va entre las filas de las z que abarca: la columna c se baja c filas
     columnas.forEach((celdas, columna) => {
-      filas += fila < celdas.length
-        ? '<td class="clickable" data-campo="c' + columna + '" data-idx="' + fila + '">' + fraccionEnHtml(celdas[fila]) + '</td>'
+      const idx = fila - columna;
+      filas += idx >= 0 && idx < celdas.length
+        ? '<td class="clickable" data-campo="c' + columna + '" data-idx="' + idx + '">' + fraccionEnHtml(celdas[idx]) + '</td>'
         : '<td></td>';
     });
     filas += '</tr>';
