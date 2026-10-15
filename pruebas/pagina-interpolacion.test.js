@@ -190,9 +190,9 @@ describe('página de Hermite: cada paso del procedimiento vale lo mismo que el p
   it('el ejercicio de ejemplo muestra los pasos en orden', () => {
     const pagina = resolverHermite([[-2, -12, 22], [1, 9, 10]]);
     const formulas = [...pagina.d.querySelectorAll('#pasos .paso')].map(paso => paso.textContent.replace(/\s+/g, ' '));
-    assert.match(formulas[3], /H\(x\) = −12 \+ 22\(x − \(−2\)\) \+ \(−5\)\(x − \(−2\)\)\(x − \(−2\)\) \+ 2\(x − \(−2\)\)\(x − \(−2\)\)\(x − 1\)/);
-    assert.match(formulas[4], /H\(x\) = −12 \+ 22\(x \+ 2\) \+ \(−5\)\(x \+ 2\)\(x \+ 2\) \+ 2\(x \+ 2\)\(x \+ 2\)\(x − 1\)/);
-    assert.match(formulas[7], /H\(x\) = −12 \+ 22·x \+ 44 − 5·x2 − 20·x − 20 \+ 2·x3 \+ 6·x2 − 8/);
+    assert.match(formulas[2], /H\(x\) = −12 \+ 22\(x − \(−2\)\) \+ \(−5\)\(x − \(−2\)\)\(x − \(−2\)\) \+ 2\(x − \(−2\)\)\(x − \(−2\)\)\(x − 1\)/);
+    assert.match(formulas[3], /H\(x\) = −12 \+ 22\(x \+ 2\) \+ \(−5\)\(x \+ 2\)\(x \+ 2\) \+ 2\(x \+ 2\)\(x \+ 2\)\(x − 1\)/);
+    assert.match(formulas[6], /H\(x\) = −12 \+ 22·x \+ 44 − 5·x2 − 20·x − 20 \+ 2·x3 \+ 6·x2 − 8/);
     assert.strictEqual(pagina.d.querySelector('.resultado').textContent, 'H(x) = 2·x3 + x2 + 2·x + 4');
     pagina.cerrar();
   });

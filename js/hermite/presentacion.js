@@ -1,7 +1,8 @@
 /* ==========================================================================
-   Procedimiento de Hermite tras la tabla: los puntos z, el polinomio en forma de
-   Newton con los valores de la tabla, cada término expandido, el resultado final
-   y la comprobación de que pasa por los puntos con la pendiente pedida.
+   Procedimiento de Hermite tras la tabla: el cálculo de las diferencias divididas,
+   el polinomio en forma de Newton con los valores de la tabla, su desarrollo
+   algebraico, el resultado final y la comprobación de que pasa por los puntos
+   con la pendiente pedida.
    ========================================================================== */
 
 /** Coeficiente listo para multiplicar: las fracciones y los negativos van entre paréntesis. */
@@ -62,11 +63,6 @@ function productosDeUnTermino(termino, k) {
     producto = siguiente;
   }
   return lineas.join('');
-}
-
-function puntosZEnHtml() {
-  return estado.puntos.map((punto, j) =>
-    formulaHtml('z' + aSubindice(2 * j) + ' = z' + aSubindice(2 * j + 1) + ' = x' + aSubindice(j) + ' = ' + numeroConSigno(punto.x))).join('');
 }
 
 function esIgual(a, b) { return a.n === b.n && a.d === b.d; }
@@ -135,9 +131,7 @@ function calculoDeLaTabla() {
 
 function procedimientoDeHermiteEnHtml(resultado) {
   const { terminos, total } = resultado;
-  let html = pasoEnHtml('Los puntos z: cada x se repite dos veces', puntosZEnHtml());
-
-  html += pasoEnHtml('Cálculo de las diferencias divididas', calculoDeLaTabla());
+  let html = pasoEnHtml('Cálculo de las diferencias divididas', calculoDeLaTabla());
   html += pasoEnHtml('Polinomio de Hermite', formulaHtml(formulaGeneralDeHermite(terminos.length)));
   html += pasoEnHtml('Sustituyendo los valores de la tabla', formulaHtml(formulaConValores(terminos, false)));
   html += pasoEnHtml('Simplificando los signos de los factores', formulaHtml(formulaConValores(terminos, true)));
