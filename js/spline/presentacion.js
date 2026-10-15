@@ -88,8 +88,11 @@ function desarrolloDeLaRecta(tramo) {
 }
 
 function procedimientoDeSplineEnHtml(tramos) {
-  let html = pasoEnHtml('Polinomio interpolador por tramos', formulaDelSpline(formulaGeneralDelSpline(tramos.length)));
-  html += pasoEnHtml('Donde', tramos.map(tramo => formulaDelSpline(pendienteGeneral(tramo.k))).join(''));
+  // Las fórmulas generales quedan en un desplegable cerrado: el procedimiento empieza en los tramos
+  let html = '<details class="formulas-generales"><summary>Ver fórmulas generales</summary>' +
+    pasoEnHtml('Polinomio interpolador por tramos', formulaDelSpline(formulaGeneralDelSpline(tramos.length))) +
+    pasoEnHtml('Donde', tramos.map(tramo => formulaDelSpline(pendienteGeneral(tramo.k))).join('')) +
+    '</details>';
 
   for (const tramo of tramos) {
     const puntos = '(' + textoDeFraccion(tramo.inicio.x) + ', ' + textoDeFraccion(tramo.inicio.y) + ') y (' +

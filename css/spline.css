@@ -5,3 +5,15 @@
 .por-tramos .llave { font-size: 3.4em; font-weight: 300; line-height: 1; }
 .por-tramos .tramos { display: flex; flex-direction: column; gap: 10px; }
 .por-tramos .tramo { white-space: nowrap; }
+
+/* Fórmulas generales: ocultas hasta que se pidan */
+.formulas-generales { margin-bottom: 20px; }
+.formulas-generales summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+.formulas-generales[open] summary { margin-bottom: 12px; }

@@ -123,6 +123,15 @@ describe('página del spline lineal', () => {
     pagina.cerrar();
   });
 
+  it('las fórmulas generales van en un desplegable cerrado', () => {
+    const pagina = resolver([['1', '1'], ['2', '1/2'], ['4', '1/4']]);
+    const desplegable = pagina.d.querySelector('#pasos details.formulas-generales');
+    assert.ok(desplegable);
+    assert.strictEqual(desplegable.open, false);
+    assert.strictEqual(pagina.d.querySelector('#pasos').firstElementChild, desplegable);
+    pagina.cerrar();
+  });
+
   it('ordena los puntos por x antes de armar los tramos', () => {
     const pagina = resolver([['4', '1/4'], ['1', '1'], ['2', '1/2']]);
     const filas = [...pagina.d.querySelectorAll('.resultado .tramo')].map(fila => fila.textContent.replace(/\s+/g, ''));
