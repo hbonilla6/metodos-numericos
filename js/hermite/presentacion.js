@@ -86,10 +86,58 @@ function comprobacionEnHtml(polinomio) {
   }).join('');
 }
 
+/** a − b escrito sin paréntesis: 9 − (−12) pasa a 9 + 12. */
+function restaConSignosResueltos(a, b) {
+  return fraccionEnHtml(a) + (b.n < 0n ? ' + ' + fraccionEnHtml(negar(b)) : ' − ' + fraccionEnHtml(b));
+}
+
+/** Cálculo de una diferencia dividida: fórmula, valores, signos resueltos y resultado. */
+function calculoDeDiferencia(columna, fila) {
+  const { z, columnas } = estado;
+  const nombre = nombreConParentesis(columna, fila);
+
+  if (usaDerivada(z, columna, fila)) {
+    const punto = puntoDeZ(fila);
+    return formulaHtml(nombre + " = f′(x" + aSubindice(punto) + ') = ' + fraccionEnHtml(columnas[columna][fila]));
+  }
+
+  const zFinal = fila + columna;
+  const abajo = columnas[columna - 1][fila + 1];
+  const arriba = columnas[columna - 1][fila];
+  const diferenciaDeZ = z[zFinal] - z[fila];
+  const zInicial = crearFraccion(z[fila]);
+  const zUltima = crearFraccion(z[zFinal]);
+
+  const simbolica = fraccion(
+    nombreConParentesis(columna - 1, fila + 1) + ' − ' + nombreConParentesis(columna - 1, fila),
+    'z' + aSubindice(zFinal) + ' − z' + aSubindice(fila));
+  const conValores = fraccion(
+    conParentesis(abajo) + ' − ' + conParentesis(arriba),
+    conParentesis(zUltima) + ' − ' + conParentesis(zInicial));
+  const sinParentesis = fraccion(restaConSignosResueltos(abajo, arriba), restaConSignosResueltos(zUltima, zInicial));
+  const resuelta = fraccion(fraccionEnHtml(restar(abajo, arriba)), numeroConSigno(diferenciaDeZ));
+
+  const pasos = [simbolica, conValores];
+  if (sinParentesis !== conValores) pasos.push(sinParentesis);
+  pasos.push(resuelta, fraccionEnHtml(columnas[columna][fila]));
+  return formulaHtml(nombre + ' = ' + pasos.join(' = '));
+}
+
+/** Todas las diferencias divididas de la tabla, columna por columna. */
+function calculoDeLaTabla() {
+  let html = '';
+  estado.columnas.forEach((celdas, columna) => {
+    if (columna === 0) return;
+    celdas.forEach((valor, fila) => { html += calculoDeDiferencia(columna, fila); });
+  });
+  return html;
+}
+
 function procedimientoDeHermiteEnHtml(resultado) {
   const { terminos, total } = resultado;
   let html = pasoEnHtml('Los puntos z: cada x se repite dos veces', puntosZEnHtml());
 
+  html += pasoEnHtml('Cálculo de las diferencias divididas', calculoDeLaTabla());
   html += pasoEnHtml('Polinomio de Hermite', formulaHtml(formulaGeneralDeHermite(terminos.length)));
   html += pasoEnHtml('Sustituyendo los valores de la tabla', formulaHtml(formulaConValores(terminos, false)));
   html += pasoEnHtml('Simplificando los signos de los factores', formulaHtml(formulaConValores(terminos, true)));

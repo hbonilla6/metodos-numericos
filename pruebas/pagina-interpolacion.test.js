@@ -167,6 +167,14 @@ describe('página de Hermite: cada paso del procedimiento vale lo mismo que el p
           assert.ok(Math.abs(valor - esperado) < 1e-7 * Math.max(1, Math.abs(esperado)), `${nombre} en x = ${x}: ${valor} contra ${esperado}`);
         }
       }
+      // cada diferencia dividida: la fórmula, los valores y el resultado valen lo mismo
+      const calculos = [...porTitulo('Cálculo').querySelectorAll('.formula')].filter(f => !f.textContent.includes('f′'));
+      for (const linea of calculos) {
+        const copia = linea.cloneNode(true);
+        copia.firstChild.textContent = '';
+        const partes = aExpresion(copia, () => null).split('=').slice(1).map(evaluarNumerico);
+        assert.ok(partes.length >= 2 && partes.every(v => v !== null && Math.abs(v - partes[0]) < 1e-9 * Math.max(1, Math.abs(partes[0]))), `cálculo: ${linea.textContent}`);
+      }
       // cada producto de factores: lo escrito sin juntar y lo simplificado valen lo mismo
       for (const linea of porTitulo('Multiplicando').querySelectorAll('.formula')) {
         for (const x of [-3, 2]) {
@@ -182,9 +190,9 @@ describe('página de Hermite: cada paso del procedimiento vale lo mismo que el p
   it('el ejercicio de ejemplo muestra los pasos en orden', () => {
     const pagina = resolverHermite([[-2, -12, 22], [1, 9, 10]]);
     const formulas = [...pagina.d.querySelectorAll('#pasos .paso')].map(paso => paso.textContent.replace(/\s+/g, ' '));
-    assert.match(formulas[2], /H\(x\) = −12 \+ 22\(x − \(−2\)\) \+ \(−5\)\(x − \(−2\)\)\(x − \(−2\)\) \+ 2\(x − \(−2\)\)\(x − \(−2\)\)\(x − 1\)/);
-    assert.match(formulas[3], /H\(x\) = −12 \+ 22\(x \+ 2\) \+ \(−5\)\(x \+ 2\)\(x \+ 2\) \+ 2\(x \+ 2\)\(x \+ 2\)\(x − 1\)/);
-    assert.match(formulas[6], /H\(x\) = −12 \+ 22·x \+ 44 − 5·x2 − 20·x − 20 \+ 2·x3 \+ 6·x2 − 8/);
+    assert.match(formulas[3], /H\(x\) = −12 \+ 22\(x − \(−2\)\) \+ \(−5\)\(x − \(−2\)\)\(x − \(−2\)\) \+ 2\(x − \(−2\)\)\(x − \(−2\)\)\(x − 1\)/);
+    assert.match(formulas[4], /H\(x\) = −12 \+ 22\(x \+ 2\) \+ \(−5\)\(x \+ 2\)\(x \+ 2\) \+ 2\(x \+ 2\)\(x \+ 2\)\(x − 1\)/);
+    assert.match(formulas[7], /H\(x\) = −12 \+ 22·x \+ 44 − 5·x2 − 20·x − 20 \+ 2·x3 \+ 6·x2 − 8/);
     assert.strictEqual(pagina.d.querySelector('.resultado').textContent, 'H(x) = 2·x3 + x2 + 2·x + 4');
     pagina.cerrar();
   });

@@ -16,11 +16,12 @@ function tituloDeColumna(columna) {
   return '';
 }
 
-/** Etiqueta escrita dentro de la celda: f(z₂), f(z₀,z₁), f(z₀,z₁,z₂)… */
-function etiquetaDeCelda(columna, fila) {
+/** Nombre de una celda con paréntesis: f(z₂), f(z₀,z₁), f(z₀,z₁,z₂)… (con "…" si abarca más de cuatro z). */
+function nombreConParentesis(columna, fila) {
   const indices = [];
   for (let i = fila; i <= fila + columna; i++) indices.push('z' + aSubindice(i));
-  return 'f(' + indices.join(',') + ') = ';
+  const lista = indices.length <= 4 ? indices.join(',') : indices[0] + ',…,' + indices[indices.length - 1];
+  return 'f(' + lista + ')';
 }
 
 /** Nombre de una celda: f[z₂], f[z₀,z₁], f[z₀,z₁,z₂]… (con "…" si abarca más de cuatro z). */
@@ -64,7 +65,7 @@ function dibujarTablaDeDiferencias() {
     columnas.forEach((celdas, columna) => {
       const idx = fila - columna;
       filas += idx >= 0 && idx < celdas.length
-        ? '<td class="clickable" data-campo="c' + columna + '" data-idx="' + idx + '"><span class="etiqueta">' + etiquetaDeCelda(columna, idx) + '</span>' + fraccionEnHtml(celdas[idx]) + '</td>'
+        ? '<td class="clickable" data-campo="c' + columna + '" data-idx="' + idx + '"><span class="etiqueta">' + nombreConParentesis(columna, idx) + ' = </span>' + fraccionEnHtml(celdas[idx]) + '</td>'
         : '<td></td>';
     });
     filas += '</tr>';
