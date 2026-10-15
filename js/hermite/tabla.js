@@ -9,12 +9,18 @@ const tablaInteractiva = crearTablaInteractiva({
   explicar: (campo, idx) => explicarCelda(campo, idx),
 });
 
-/** Título de cada columna de la tabla: f[zₖ], f[zₖ,zₖ₊₁], f[zₖ,zₖ₊₁,zₖ₊₂], f[zₖ,…,zₖ₊₃]… */
+/** Título de cada columna: f(zₖ) y f′(zₖ); las demás columnas no llevan título. */
 function tituloDeColumna(columna) {
-  if (columna === 0) return 'f[zₖ]';
-  if (columna === 1) return 'f[zₖ,zₖ₊₁]';
-  if (columna === 2) return 'f[zₖ,zₖ₊₁,zₖ₊₂]';
-  return 'f[zₖ,…,zₖ₊' + aSubindice(columna) + ']';
+  if (columna === 0) return 'f(zₖ)';
+  if (columna === 1) return 'f′(zₖ)';
+  return '';
+}
+
+/** Etiqueta escrita dentro de la celda: f(z₂), f(z₀,z₁), f(z₀,z₁,z₂)… */
+function etiquetaDeCelda(columna, fila) {
+  const indices = [];
+  for (let i = fila; i <= fila + columna; i++) indices.push('z' + aSubindice(i));
+  return 'f(' + indices.join(',') + ') = ';
 }
 
 /** Nombre de una celda: f[z₂], f[z₀,z₁], f[z₀,z₁,z₂]… (con "…" si abarca más de cuatro z). */
@@ -53,12 +59,12 @@ function dibujarTablaDeDiferencias() {
 
   let filas = '';
   z.forEach((valorDeZ, fila) => {
-    filas += '<tr><td class="it-col">' + fila + '</td><td>' + String(valorDeZ).replace('-', '−') + '</td>';
+    filas += '<tr><td class="it-col">' + fila + '</td><td>z' + aSubindice(fila) + ' = ' + String(valorDeZ).replace('-', '−') + '</td>';
     // Cada diferencia va entre las filas de las z que abarca: la columna c se baja c filas
     columnas.forEach((celdas, columna) => {
       const idx = fila - columna;
       filas += idx >= 0 && idx < celdas.length
-        ? '<td class="clickable" data-campo="c' + columna + '" data-idx="' + idx + '">' + fraccionEnHtml(celdas[idx]) + '</td>'
+        ? '<td class="clickable" data-campo="c' + columna + '" data-idx="' + idx + '"><span class="etiqueta">' + etiquetaDeCelda(columna, idx) + '</span>' + fraccionEnHtml(celdas[idx]) + '</td>'
         : '<td></td>';
     });
     filas += '</tr>';

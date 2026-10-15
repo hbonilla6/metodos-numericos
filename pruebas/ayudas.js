@@ -91,10 +91,10 @@ function abrirPagina(archivo) {
 
 // ---------- Evaluar fórmulas dibujadas en HTML (para comprobar que lo que se ve es matemáticamente correcto) ----------
 
-/** Texto de una celda sin las llaves de dígitos repetidos. */
+/** Texto de una celda sin las llaves de dígitos repetidos ni las etiquetas de la tabla de Hermite. */
 function htmlSinAnotaciones(elemento) {
   const copia = elemento.cloneNode(true);
-  copia.querySelectorAll('.run-count').forEach(e => e.remove());
+  copia.querySelectorAll('.run-count, .etiqueta').forEach(e => e.remove());
   return copia;
 }
 
