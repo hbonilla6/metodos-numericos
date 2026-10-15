@@ -91,12 +91,6 @@ function restaConSignosResueltos(a, b) {
 function calculoDeDiferencia(columna, fila) {
   const { z, columnas } = estado;
   const nombre = nombreConParentesis(columna, fila);
-
-  if (usaDerivada(z, columna, fila)) {
-    const punto = puntoDeZ(fila);
-    return formulaHtml(nombre + " = f′(x" + aSubindice(punto) + ') = ' + fraccionEnHtml(columnas[columna][fila]));
-  }
-
   const zFinal = fila + columna;
   const abajo = columnas[columna - 1][fila + 1];
   const arriba = columnas[columna - 1][fila];
@@ -119,12 +113,14 @@ function calculoDeDiferencia(columna, fila) {
   return formulaHtml(nombre + ' = ' + pasos.join(' = '));
 }
 
-/** Todas las diferencias divididas de la tabla, columna por columna. */
+/** Las diferencias divididas que se calculan, columna por columna (las de la derivada ya son datos). */
 function calculoDeLaTabla() {
   let html = '';
   estado.columnas.forEach((celdas, columna) => {
     if (columna === 0) return;
-    celdas.forEach((valor, fila) => { html += calculoDeDiferencia(columna, fila); });
+    celdas.forEach((valor, fila) => {
+      if (!usaDerivada(estado.z, columna, fila)) html += calculoDeDiferencia(columna, fila);
+    });
   });
   return html;
 }

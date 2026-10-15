@@ -168,7 +168,7 @@ describe('página de Hermite: cada paso del procedimiento vale lo mismo que el p
         }
       }
       // cada diferencia dividida: la fórmula, los valores y el resultado valen lo mismo
-      const calculos = [...porTitulo('Cálculo').querySelectorAll('.formula')].filter(f => !f.textContent.includes('f′'));
+      const calculos = [...porTitulo('Cálculo').querySelectorAll('.formula')];
       for (const linea of calculos) {
         const copia = linea.cloneNode(true);
         copia.firstChild.textContent = '';
