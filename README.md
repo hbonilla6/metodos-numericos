@@ -13,6 +13,7 @@ Herramientas web para resolver métodos numéricos **paso a paso**: cada resulta
 | [`sistemas_lineales.html`](sistemas_lineales.html) | **Sistemas 3×3** con Jacobi y Gauss-Seidel | x, y, z por iteración |
 | [`interpolacion.html`](interpolacion.html) | **Interpolación de Lagrange**, lineal (2 puntos) y parabólica (3 puntos) | P(x) con los puntos |
 | [`hermite.html`](hermite.html) | **Interpolación de Hermite** con diferencias divididas (2 o 3 puntos con f(x) y f'(x)) | H(x) con puntos y pendientes |
+| [`spline.html`](spline.html) | **Interpolación segmentaria (spline lineal)**: una recta entre cada par de puntos consecutivos (2 a 5 puntos) | P(x) por tramos con los puntos |
 
 ### Raíces de ecuaciones
 
@@ -45,6 +46,12 @@ Herramientas web para resolver métodos numéricos **paso a paso**: cada resulta
 - Cada x se repite dos veces (z₀ = z₁ = x₀, z₂ = z₃ = x₁, …) y se arma la tabla de diferencias divididas. En las celdas entre z repetidos se usa la derivada en lugar de dividir entre cero.
 - El polinomio sale en forma de Newton, se expande término por término y se **comprueba** con fracciones exactas que H(xⱼ) = f(xⱼ) y H'(xⱼ) = f'(xⱼ).
 
+### Interpolación segmentaria (spline lineal)
+
+- **Entrada:** de 2 a 5 puntos. Acepta enteros, fracciones (`1/2`) y decimales (`0.5` o `0,5`); se convierten a fracciones exactas. Los puntos se ordenan por x antes de armar los tramos.
+- En cada tramo [xₖ, xₖ₊₁] se calcula la pendiente f[xₖ₊₁, xₖ] y la recta P(x) = yₖ + f[xₖ₊₁, xₖ](x − xₖ), que se desarrolla hasta quedar como mx + b.
+- El resultado se escribe como polinomio por tramos, con el intervalo de cada uno.
+
 ## Qué usamos para que los cálculos sean exactos y correctos
 
 No hay frameworks ni dependencias que instalar. Solo **una librería externa** y herramientas del propio navegador:
@@ -52,7 +59,7 @@ No hay frameworks ni dependencias que instalar. Solo **una librería externa** y
 | Qué | Para qué | Dónde se usa |
 |---|---|---|
 | [**decimal.js 10.4.3**](https://github.com/MikeMcl/decimal.js) (por CDN) | Aritmética decimal de **40 dígitos significativos**. Evita los errores típicos de `0.1 + 0.2` de los números de JavaScript y permite iterar sin arrastrar error de redondeo. | Raíces y sistemas |
-| **`BigInt`** (nativo del navegador) | **Fracciones exactas**: numerador y denominador enteros sin límite, siempre simplificados. No hay redondeo en ningún paso. | Lagrange y Hermite |
+| **`BigInt`** (nativo del navegador) | **Fracciones exactas**: numerador y denominador enteros sin límite, siempre simplificados. No hay redondeo en ningún paso. | Lagrange, Hermite y spline |
 | **Analizador y derivador propios** | Convierte el texto de f(x) en un árbol, lo evalúa con `Decimal` y lo deriva simbólicamente (suma, producto, cociente y potencias con exponente numérico). **No usa `eval`**, así que nada de lo escrito se ejecuta como código. | Raíces |
 | **Gráficas SVG propias** (`js/comun/grafica.js`) | Dibuja curvas, puntos y segmentos sin librerías: funciona sin internet y se adapta al ancho de la pantalla. | Todas las herramientas |
 | `localStorage` | Recuerda lo escrito y la casilla "Mostrar error" en ese navegador. Si el navegador no lo permite, todo sigue funcionando sin guardar. | Todas las herramientas |
@@ -70,7 +77,7 @@ Detalles que cuidan la corrección:
 
 ## Pruebas
 
-Más de 1 200 pruebas automáticas comprueban los cálculos y también lo que se muestra en pantalla. Se necesita Node.js 22 o superior:
+Más de 1 300 pruebas automáticas comprueban los cálculos y también lo que se muestra en pantalla. Se necesita Node.js 22 o superior:
 
 ```bash
 npm install     # una sola vez (instala decimal.js y jsdom, solo para las pruebas)
@@ -111,6 +118,7 @@ css/
   sistemas.css         sistemas de ecuaciones
   interpolacion.css    interpolación (también lo usa Hermite)
   hermite.css          Hermite
+  spline.css           spline lineal (expresión por tramos)
 js/
   comun/               piezas que usan varias páginas
     notacion.js          subíndices, fracciones y raíces en HTML
@@ -125,6 +133,7 @@ js/
   sistemas/            matematica, entrada, despeje, tabla, explicaciones, veredicto, grafica, pagina
   interpolacion/       lagrange, presentacion, grafica, pagina
   hermite/             diferencias, tabla, explicaciones, presentacion, grafica, pagina
+  spline/              spline, presentacion, grafica, pagina
 pruebas/               pruebas automáticas (ver Pruebas) y sus referencias calculadas con Python
 package.json           solo declara las dependencias de las pruebas; el sitio no las necesita
 ```

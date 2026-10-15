@@ -1,0 +1,7 @@
+/* Estilos propios de la página del spline lineal (usa también interpolacion.css para los campos y los pasos) */
+
+/* Expresión por tramos: una llave a la izquierda y una fila por tramo */
+.por-tramos { display: inline-flex; align-items: center; gap: 6px; text-align: left; }
+.por-tramos .llave { font-size: 3.4em; font-weight: 300; line-height: 1; }
+.por-tramos .tramos { display: flex; flex-direction: column; gap: 10px; }
+.por-tramos .tramo { white-space: nowrap; }
