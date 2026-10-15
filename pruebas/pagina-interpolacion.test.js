@@ -148,6 +148,48 @@ describe('página de Hermite: tabla, polinomio y comprobación contra la referen
   });
 });
 
+describe('página de Hermite: cada paso del procedimiento vale lo mismo que el polinomio', () => {
+  referencias.hermite.slice(0, 25).forEach((caso, i) => {
+    it(`caso ${i + 1}: ${JSON.stringify(caso.puntos)}`, () => {
+      const pagina = resolverHermite(caso.puntos);
+      const titulo = paso => paso.querySelector('.paso-titulo').textContent;
+      const pasos = [...pagina.d.querySelectorAll('#pasos .paso')];
+      const esperadoEn = x => evaluarReferencia(caso.coeficientes, x);
+      const porTitulo = nombre => pasos.find(paso => titulo(paso).startsWith(nombre));
+
+      // los pasos que reescriben H(x): sustituir, simplificar signos, multiplicar, repartir y sumar
+      const reescrituras = ['Sustituyendo', 'Simplificando', 'Cada coeficiente', 'Repartiendo', 'Sumando'];
+      for (const nombre of reescrituras) {
+        const formula = porTitulo(nombre).querySelector('.formula');
+        for (const x of [-3, 0.5, 2, 7.25]) {
+          const valor = valorDeFormula(formula, x).filter(v => v !== null).pop();
+          const esperado = esperadoEn(x);
+          assert.ok(Math.abs(valor - esperado) < 1e-7 * Math.max(1, Math.abs(esperado)), `${nombre} en x = ${x}: ${valor} contra ${esperado}`);
+        }
+      }
+      // cada producto de factores: lo escrito sin juntar y lo simplificado valen lo mismo
+      for (const linea of porTitulo('Multiplicando').querySelectorAll('.formula')) {
+        for (const x of [-3, 2]) {
+          const copia = linea.cloneNode(true);
+          copia.firstChild.textContent = copia.firstChild.textContent.replace(/^Término \d+: /, '');
+          const valores = valorDeFormula(copia, x);
+          assert.ok(valores.length >= 2 && valores.every(v => v !== null) && valores.every(v => Math.abs(v - valores[0]) < 1e-8 * Math.max(1, Math.abs(valores[0]))), `producto en x = ${x}: ${valores}`);
+        }
+      }
+      pagina.cerrar();
+    });
+  });
+  it('el ejercicio de ejemplo muestra los pasos en orden', () => {
+    const pagina = resolverHermite([[-2, -12, 22], [1, 9, 10]]);
+    const formulas = [...pagina.d.querySelectorAll('#pasos .paso')].map(paso => paso.textContent.replace(/\s+/g, ' '));
+    assert.match(formulas[2], /H\(x\) = −12 \+ 22\(x − \(−2\)\) \+ \(−5\)\(x − \(−2\)\)\(x − \(−2\)\) \+ 2\(x − \(−2\)\)\(x − \(−2\)\)\(x − 1\)/);
+    assert.match(formulas[3], /H\(x\) = −12 \+ 22\(x \+ 2\) \+ \(−5\)\(x \+ 2\)\(x \+ 2\) \+ 2\(x \+ 2\)\(x \+ 2\)\(x − 1\)/);
+    assert.match(formulas[6], /H\(x\) = −12 \+ 22·x \+ 44 − 5·x2 − 20·x − 20 \+ 2·x3 \+ 6·x2 − 8/);
+    assert.strictEqual(pagina.d.querySelector('.resultado').textContent, 'H(x) = 2·x3 + x2 + 2·x + 4');
+    pagina.cerrar();
+  });
+});
+
 describe('página de Hermite: la aritmética de cada explicación cuadra', () => {
   for (const puntos of [[[-2, -12, 22], [1, 9, 10]], [[0, 1, 0], [1, 2, 3], [3, -1, 2]], [[5, 6, 10], [-4, 13, 12]], [[-8, -4, 0], [6, 10, 8], [1, 1, -3]]]) {
     it(JSON.stringify(puntos), () => {

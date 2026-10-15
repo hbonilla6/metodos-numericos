@@ -19,12 +19,49 @@ function formulaGeneralDeHermite(cantidadDeTerminos) {
   return 'H(x) = ' + terminos.join(' + ');
 }
 
-/** La misma fórmula con los números de la tabla: −12 + 22(x + 2) + (−5)(x + 2)(x + 2) + … */
-function formulaConValores(terminos) {
-  return 'H(x) = ' + terminos.map(termino => {
-    const factores = termino.factores.map(factorConVariable).join('');
-    return coeficienteEnProducto(termino.coeficiente) + factores;
+/** (x − z) sin simplificar: (x − (−2)) si z es negativo. */
+function factorSinSimplificar(z) {
+  return '(x − ' + (z < 0 ? '(' + numeroConSigno(z) + ')' : z) + ')';
+}
+
+/** La fórmula con los números de la tabla; con simplificar = false los factores quedan como (x − (−2)). */
+function formulaConValores(terminos, simplificar) {
+  return 'H(x) = ' + terminos.map((termino, k) => {
+    const factores = termino.factores.map(simplificar ? factorConVariable : factorSinSimplificar).join('');
+    const coeficiente = k === 0 ? fraccionEnHtml(termino.coeficiente) : coeficienteEnProducto(termino.coeficiente);
+    return coeficiente + factores;
   }).join(' + ');
+}
+
+/** Cada coeficiente multiplicado por el producto de sus factores ya desarrollado: −12 + 22(x + 2) + … */
+function formulaConProductos(terminos) {
+  return 'H(x) = ' + terminos.map((termino, k) => {
+    if (k === 0) return fraccionEnHtml(termino.coeficiente);
+    const producto = polinomioEnHtml(termino.base);
+    return coeficienteEnProducto(termino.coeficiente) + '(' + producto + ')';
+  }).join(' + ');
+}
+
+/** Cada coeficiente distribuido sobre los términos de su producto: −12 + 22x + 44 − 5x² … */
+function formulaDistribuida(terminos) {
+  const monomios = terminos.flatMap(termino => monomiosDePolinomio(termino.base, termino.coeficiente));
+  return 'H(x) = ' + monomiosEnHtml(monomios);
+}
+
+/** Desarrollo del producto de los factores de un término: (x + 2)(x + 2) = x² + 2x + 2x + 4 = x² + 4x + 4 */
+function productosDeUnTermino(termino, k) {
+  const lineas = [];
+  let producto = factorLineal(crearFraccion(termino.factores[0]));
+  for (let j = 1; j < termino.factores.length; j++) {
+    const z = termino.factores[j];
+    const siguiente = multiplicarPolinomios(producto, factorLineal(crearFraccion(z)));
+    const sinJuntar = monomiosEnHtml(productoPorBinomioSinSimplificar(producto, crearFraccion(z)));
+    const simplificado = polinomioEnHtml(siguiente);
+    lineas.push(formulaHtml('Término ' + (k + 1) + ': (' + polinomioEnHtml(producto) + ')' + factorConVariable(z) + ' = ' +
+      (sinJuntar === simplificado ? '' : sinJuntar + ' = ') + simplificado));
+    producto = siguiente;
+  }
+  return lineas.join('');
 }
 
 function puntosZEnHtml() {
@@ -53,14 +90,16 @@ function procedimientoDeHermiteEnHtml(resultado) {
   const { terminos, total } = resultado;
   let html = pasoEnHtml('Los puntos z: cada x se repite dos veces', puntosZEnHtml());
 
-  html += pasoEnHtml('Polinomio de Hermite con los valores de la tabla',
-    formulaHtml(formulaGeneralDeHermite(terminos.length)) + formulaHtml(formulaConValores(terminos)));
+  html += pasoEnHtml('Polinomio de Hermite', formulaHtml(formulaGeneralDeHermite(terminos.length)));
+  html += pasoEnHtml('Sustituyendo los valores de la tabla', formulaHtml(formulaConValores(terminos, false)));
+  html += pasoEnHtml('Simplificando los signos de los factores', formulaHtml(formulaConValores(terminos, true)));
 
-  html += pasoEnHtml('Expandiendo cada término', terminos.map((termino, k) =>
-    formulaHtml('Término ' + (k + 1) + ' = ' + polinomioEnHtml(termino.expandido))).join(''));
+  const productos = terminos.map((termino, k) => termino.factores.length > 1 ? productosDeUnTermino(termino, k) : '').join('');
+  if (productos) html += pasoEnHtml('Multiplicando los factores de cada término', productos);
 
-  html += pasoEnHtml('Sumando términos semejantes',
-    formulaHtml('H(x) = ' + terminos.map(t => '(' + polinomioEnHtml(t.expandido) + ')').join(' + ')));
+  html += pasoEnHtml('Cada coeficiente por su producto', formulaHtml(formulaConProductos(terminos)));
+  html += pasoEnHtml('Repartiendo cada coeficiente', formulaHtml(formulaDistribuida(terminos)));
+  html += pasoEnHtml('Sumando términos semejantes', formulaHtml('H(x) = ' + polinomioEnHtml(total)));
 
   html += '<div class="resultado">H(x) = ' + polinomioEnHtml(total) + '</div>';
   html += pasoEnHtml('Comprobación: pasa por cada punto con su pendiente', comprobacionEnHtml(total));

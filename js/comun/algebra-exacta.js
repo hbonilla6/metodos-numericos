@@ -94,25 +94,46 @@ function factorConVariable(xj) {
   return xj > 0 ? '(x − ' + xj + ')' : '(x + ' + (-xj) + ')';
 }
 
-/** Polinomio como "2·x² − x + 3", sin términos nulos ni coeficientes 1 de más. */
-function polinomioEnHtml(polinomio, variable) {
+/** Un término sin signo: coeficiente absoluto y potencia de x ("2·x²", "x", "5"). */
+function monomioEnHtml(absoluto, grado, variable) {
   variable = variable || 'x';
-  const partes = [];
-  for (let grado = polinomio.length - 1; grado >= 0; grado--) {
-    const coeficiente = polinomio[grado];
-    if (esCero(coeficiente)) continue;
+  if (grado === 0) return fraccionEnHtml(absoluto);
+  const esUno = absoluto.n === 1n && absoluto.d === 1n;
+  return (esUno ? '' : fraccionEnHtml(absoluto) + '·') + variable + (grado > 1 ? '<sup>' + grado + '</sup>' : '');
+}
 
-    const { signo, absoluto } = signoYValor(coeficiente);
-    let termino = fraccionEnHtml(absoluto);
-    if (grado >= 1) {
-      const esUno = absoluto.n === 1n && absoluto.d === 1n;
-      termino = (esUno ? '' : termino + '·') + variable + (grado > 1 ? '<sup>' + grado + '</sup>' : '');
-    }
-    partes.push({ signo, termino });
-  }
+/** Escribe la lista de términos { coeficiente, grado } en el orden dado, sin reducir semejantes. Omite los de coeficiente 0. */
+function monomiosEnHtml(monomios, variable) {
+  const partes = monomios.filter(m => !esCero(m.coeficiente)).map(m => {
+    const { signo, absoluto } = signoYValor(m.coeficiente);
+    return { signo, termino: monomioEnHtml(absoluto, m.grado, variable) };
+  });
   if (partes.length === 0) return '0';
 
   let html = (partes[0].signo === ' − ' ? '−' : '') + partes[0].termino;
   for (let i = 1; i < partes.length; i++) html += partes[i].signo + partes[i].termino;
   return html;
+}
+
+/** Polinomio como "2·x² − x + 3", sin términos nulos ni coeficientes 1 de más. */
+function polinomioEnHtml(polinomio, variable) {
+  const monomios = [];
+  for (let grado = polinomio.length - 1; grado >= 0; grado--) monomios.push({ coeficiente: polinomio[grado], grado });
+  return monomiosEnHtml(monomios, variable);
+}
+
+/** Términos del polinomio multiplicados por un número, de mayor a menor grado. */
+function monomiosDePolinomio(polinomio, numero) {
+  const monomios = [];
+  for (let grado = polinomio.length - 1; grado >= 0; grado--) {
+    monomios.push({ coeficiente: multiplicar(polinomio[grado], numero), grado });
+  }
+  return monomios;
+}
+
+/** Términos del producto (p)(x − a) sin reducir semejantes: primero los de x y después los de −a. */
+function productoPorBinomioSinSimplificar(polinomio, a) {
+  const monomios = monomiosDePolinomio(polinomio, crearFraccion(1)).map(m => ({ coeficiente: m.coeficiente, grado: m.grado + 1 }));
+  if (!esCero(a)) monomios.push(...monomiosDePolinomio(polinomio, negar(a)));
+  return monomios;
 }
