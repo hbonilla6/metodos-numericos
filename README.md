@@ -103,6 +103,16 @@ python -m http.server
 
 y entra a `http://localhost:8000`. Necesita internet solo para cargar decimal.js y las tipografías.
 
+## Versiones de los archivos (caché del navegador)
+
+Cada `css/` y `js/` se enlaza con una versión calculada con su contenido (`app.js?v=ab12cd34`), para que el navegador descargue de nuevo solo lo que cambió y nadie tenga que forzar la recarga. **Después de cambiar cualquier archivo de `css/` o `js/`, corre:**
+
+```bash
+npm run versionar
+```
+
+Si se olvida, `npm test` falla (`pruebas/versiones.test.js`) y avisa qué página quedó desactualizada.
+
 ## Publicación
 
 El sitio se publica solo con **GitHub Pages**: cada `push` a `main` ejecuta [`.github/workflows/static.yml`](.github/workflows/static.yml), que sube la carpeta completa. Los archivos de `css/` y `js/` deben subirse junto con los HTML.
@@ -135,6 +145,7 @@ js/
   hermite/             diferencias, tabla, explicaciones, presentacion, grafica, pagina
   spline/              spline, presentacion, grafica, pagina
 pruebas/               pruebas automáticas (ver Pruebas) y sus referencias calculadas con Python
+scripts/               versionar-recursos.js: pone la versión (?v=…) a los css y js de los HTML
 package.json           solo declara las dependencias de las pruebas; el sitio no las necesita
 ```
 

@@ -56,7 +56,7 @@ function armarHtml(archivo) {
   return fs.readFileSync(path.join(RAIZ, archivo), 'utf8').replace(/<script\s+src="([^"]+)"[^>]*><\/script>/g, (m, src) => {
     if (/decimal/.test(src)) return '<script>' + decimalFuente.replace(/<\/script>/g, '') + '</script>';
     if (/^https?:/.test(src)) return '';
-    return '<script>' + leerArchivo(src).replace(/<\/script>/g, '<\\/script>') + '</script>';
+    return '<script>' + leerArchivo(src.split('?')[0]).replace(/<\/script>/g, '<\\/script>') + '</script>';
   });
 }
 

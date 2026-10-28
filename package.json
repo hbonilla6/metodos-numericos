@@ -3,7 +3,8 @@
   "private": true,
   "description": "Herramientas web de métodos numéricos (sitio estático). Este package.json solo sirve para las pruebas.",
   "scripts": {
-    "test": "node --test \"pruebas/**/*.test.js\""
+    "test": "node --test \"pruebas/**/*.test.js\"",
+    "versionar": "node scripts/versionar-recursos.js"
   },
   "devDependencies": {
     "decimal.js": "10.4.3",
