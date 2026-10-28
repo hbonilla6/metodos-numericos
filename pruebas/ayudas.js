@@ -60,8 +60,7 @@ function armarHtml(archivo) {
   });
 }
 
-/** Abre la página; `pestana` (opcional) elige la pestaña de método, por ejemplo 'hermite'. */
-function abrirPagina(archivo, pestana) {
+function abrirPagina(archivo) {
   const errores = [];
   const consola = new VirtualConsole();
   consola.on('jsdomError', e => errores.push(e.message));
@@ -74,7 +73,6 @@ function abrirPagina(archivo, pestana) {
   });
   const w = dom.window;
   const d = w.document;
-  if (pestana) d.getElementById('tab-' + pestana).dispatchEvent(new w.MouseEvent('click', { bubbles: true }));
   return {
     w, d, errores,
     cerrar: () => w.close(),

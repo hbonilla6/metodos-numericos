@@ -11,7 +11,9 @@ Herramientas web para resolver métodos numéricos **paso a paso**: cada resulta
 | [`index.html`](index.html) | Portada con las herramientas | — |
 | [`metodos_comparacion.html`](metodos_comparacion.html) | **Raíces de ecuaciones** f(x) = 0: bisección, regla falsa, secante, Newton-Raphson y punto fijo | f(x) con la raíz y el camino de cada método |
 | [`sistemas_lineales.html`](sistemas_lineales.html) | **Sistemas 3×3** con Jacobi y Gauss-Seidel | x, y, z por iteración |
-| [`interpolacion.html`](interpolacion.html) | **Interpolación**, con una pestaña por método: Lagrange (lineal y parabólica), Hermite (diferencias divididas) y Splite (spline lineal) | El polinomio con los puntos, las pendientes (Hermite) o los tramos (spline) |
+| [`interpolacion.html`](interpolacion.html) | **Interpolación de Lagrange**, lineal (2 puntos) y parabólica (3 puntos) | P(x) con los puntos |
+| [`hermite.html`](hermite.html) | **Interpolación de Hermite** con diferencias divididas (2 o 3 puntos con f(x) y f'(x)) | H(x) con puntos y pendientes |
+| [`spline.html`](spline.html) | **Interpolación segmentaria (spline lineal)**: una recta entre cada par de puntos consecutivos (2 a 5 puntos) | P(x) por tramos con los puntos |
 
 ### Raíces de ecuaciones
 
@@ -33,22 +35,18 @@ Herramientas web para resolver métodos numéricos **paso a paso**: cada resulta
 - **Tolerancia** fija en 10⁻⁷, con el error como norma infinito (la mayor diferencia entre dos iteraciones).
 - **Sistemas singulares** (determinante casi cero) se rechazan con un aviso.
 
-### Interpolación
-
-Una sola página con tres pestañas (Lagrange, Hermite y Splite) y un solo formulario de hasta 5 puntos (x, f(x) y f'(x)): lo que escribes se comparte entre las pestañas, y cada una usa solo los campos que necesita. Lagrange y Hermite usan hasta 3 puntos; Splite, hasta 5. La página recuerda lo escrito y la última pestaña usada.
-
-#### Lagrange
+### Interpolación de Lagrange
 
 - **Entrada:** 2 o 3 puntos con coordenadas **enteras** (se trabaja con fracciones exactas).
 - Muestra la fórmula con tus puntos, cada término expandido y simplificado, y la suma de términos semejantes, igual que en el pizarrón.
 
-#### Hermite
+### Interpolación de Hermite
 
 - **Entrada:** 2 o 3 puntos con x, f(x) y f'(x) **enteros**.
 - Cada x se repite dos veces (z₀ = z₁ = x₀, z₂ = z₃ = x₁, …) y se arma la tabla de diferencias divididas. En las celdas entre z repetidos se usa la derivada en lugar de dividir entre cero.
 - El polinomio sale en forma de Newton, se expande término por término y se **comprueba** con fracciones exactas que H(xⱼ) = f(xⱼ) y H'(xⱼ) = f'(xⱼ).
 
-#### Splite (spline lineal)
+### Interpolación segmentaria (spline lineal)
 
 - **Entrada:** de 2 a 5 puntos. Acepta enteros, fracciones (`1/2`) y decimales (`0.5` o `0,5`); se convierten a fracciones exactas. Los puntos se ordenan por x antes de armar los tramos.
 - En cada tramo [xₖ, xₖ₊₁] se calcula la pendiente f[xₖ₊₁, xₖ] y la recta P(x) = yₖ + f[xₖ₊₁, xₖ](x − xₖ), que se desarrolla hasta quedar como mx + b.
@@ -118,9 +116,9 @@ css/
   portada.css          portada
   raices.css           raíces de ecuaciones
   sistemas.css         sistemas de ecuaciones
-  interpolacion.css    interpolación (campos y pasos de las tres pestañas)
-  hermite.css          pestaña de Hermite
-  spline.css           pestaña de spline lineal (expresión por tramos)
+  interpolacion.css    interpolación (también lo usa Hermite)
+  hermite.css          Hermite
+  spline.css           spline lineal (expresión por tramos)
 js/
   comun/               piezas que usan varias páginas
     notacion.js          subíndices, fracciones y raíces en HTML
@@ -133,9 +131,9 @@ js/
   raices/              expresion, derivada, metodos, punto-fijo, formulas, comparacion,
                        explicaciones, tabla, grafica, pagina
   sistemas/            matematica, entrada, despeje, tabla, explicaciones, veredicto, grafica, pagina
-  interpolacion/       lagrange, presentacion, grafica, metodo (pestaña de Lagrange) y pagina (pestañas y campos)
-  hermite/             diferencias, estado, tabla, explicaciones, presentacion, grafica, metodo (pestaña de Hermite)
-  spline/              spline, presentacion, grafica, metodo (pestaña del spline)
+  interpolacion/       lagrange, presentacion, grafica, pagina
+  hermite/             diferencias, tabla, explicaciones, presentacion, grafica, pagina
+  spline/              spline, presentacion, grafica, pagina
 pruebas/               pruebas automáticas (ver Pruebas) y sus referencias calculadas con Python
 package.json           solo declara las dependencias de las pruebas; el sitio no las necesita
 ```
