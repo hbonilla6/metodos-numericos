@@ -245,7 +245,7 @@ describe('página de Hermite: validaciones', () => {
     const pagina = resolverHermite([[-2, -12, 22], [1, 9, 10]]);
     pagina.clic(pagina.boton('Limpiar'));
     for (const id of ['tablaCard', 'resultCard', 'graficaCard']) assert.strictEqual(pagina.d.getElementById(id).style.display, 'none');
-    assert.strictEqual(pagina.w.localStorage.getItem('hermite_campos'), null);
+    assert.strictEqual(pagina.w.localStorage.getItem('interpolacion_campos'), null);
     pagina.cerrar();
   });
 });
@@ -253,25 +253,41 @@ describe('página de Hermite: validaciones', () => {
 describe('página de interpolación: pestañas', () => {
   const pestanaActiva = pagina => [...pagina.d.querySelectorAll('.tab-btn.activo')].map(boton => boton.dataset.metodo);
 
-  it('abre en Lagrange y cambia los campos al elegir otra pestaña', () => {
+  const visible = (pagina, id) => pagina.d.getElementById(id).style.display !== 'none';
+  const filaVisible = (pagina, i) => pagina.d.querySelector('.pt-row[data-punto="' + i + '"]').style.display !== 'none';
+
+  it('abre en Lagrange y cada pestaña muestra solo los campos que usa', () => {
     const pagina = abrirPagina('interpolacion.html');
     assert.deepStrictEqual(pestanaActiva(pagina), ['lagrange']);
-    assert.strictEqual(pagina.d.getElementById('d0'), null);
+    assert.ok(!visible(pagina, 'd0'));
+    assert.ok(filaVisible(pagina, 2) && !filaVisible(pagina, 3));
     pagina.clic(pagina.d.getElementById('tab-hermite'));
     assert.deepStrictEqual(pestanaActiva(pagina), ['hermite']);
-    assert.ok(pagina.d.getElementById('d0'));
+    assert.ok(visible(pagina, 'd0'));
+    assert.ok(!filaVisible(pagina, 3));
     pagina.clic(pagina.d.getElementById('tab-spline'));
-    assert.ok(pagina.d.getElementById('x4'));
+    assert.ok(!visible(pagina, 'd0'));
+    assert.ok(filaVisible(pagina, 4));
     assert.deepStrictEqual(pagina.errores, []);
     pagina.cerrar();
   });
-  it('cada método conserva lo que se escribió en su pestaña', () => {
+  it('los puntos escritos se comparten entre las pestañas', () => {
     const pagina = abrirPagina('interpolacion.html');
     pagina.escribir('x0', '1'); pagina.escribir('f0', '2');
     pagina.clic(pagina.d.getElementById('tab-hermite'));
-    assert.strictEqual(pagina.d.getElementById('x0').value, '');
-    pagina.clic(pagina.d.getElementById('tab-lagrange'));
     assert.strictEqual(pagina.d.getElementById('x0').value, '1');
+    pagina.clic(pagina.d.getElementById('tab-spline'));
+    assert.strictEqual(pagina.d.getElementById('f0').value, '2');
+    pagina.cerrar();
+  });
+  it('los mismos puntos dan resultados distintos en Lagrange y en Splite', () => {
+    const pagina = abrirPagina('interpolacion.html');
+    [[0, 0], [1, 1], [2, 4]].forEach(([x, f], i) => { pagina.escribir('x' + i, x); pagina.escribir('f' + i, f); });
+    pagina.clic(pagina.boton('Resolver'));
+    const lagrange = pagina.html('pasos');
+    pagina.clic(pagina.d.getElementById('tab-spline'));
+    assert.notStrictEqual(pagina.html('pasos'), lagrange);
+    assert.ok(pagina.html('pasos').includes('class="resultado"'));
     pagina.cerrar();
   });
   it('al cambiar de pestaña no queda el resultado del método anterior', () => {

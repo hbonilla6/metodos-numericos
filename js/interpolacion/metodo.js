@@ -7,7 +7,6 @@ const ES_ENTERO = /^-?\d+$/;
 
 const metodoLagrange = {
   clave: 'lagrange',
-  claveDeGuardado: 'interpolacion_campos',
   cantidadDePuntos: 3,
   campos: [
     { prefijo: 'x', ayuda: 'x' },
@@ -15,8 +14,6 @@ const metodoLagrange = {
   ],
   nota: '2 puntos = interpolación lineal. 3 puntos = parabólica. Deja el tercer punto vacío si solo tienes 2.',
   mensajeIncompleto: 'Completa tanto x como f(x) en cada punto que uses.',
-  etiqueta: i => 'x' + i + ', f' + i,
-  opcional: i => i === 2 ? '(opcional, solo si es parabólica)' : '',
 
   /** Dibuja el resultado; devuelve el mensaje de error si los datos no sirven. */
   resolver(escritos) {

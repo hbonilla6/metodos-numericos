@@ -5,7 +5,6 @@
 
 const metodoSpline = {
   clave: 'spline',
-  claveDeGuardado: 'spline_campos',
   cantidadDePuntos: 5,
   campos: [
     { prefijo: 'x', ayuda: 'x' },
@@ -13,8 +12,6 @@ const metodoSpline = {
   ],
   nota: 'Escribe al menos 2 puntos (hasta 5). Acepta enteros, fracciones como 1/2 y decimales como 0.5.',
   mensajeIncompleto: 'Completa tanto x como f(x) en cada punto que uses.',
-  etiqueta: i => 'x' + i + ', f' + i,
-  opcional: i => i >= 2 ? '(opcional)' : '',
 
   /** Dibuja el resultado; devuelve el mensaje de error si los datos no sirven. */
   resolver(escritos) {

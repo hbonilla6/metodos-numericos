@@ -11,7 +11,7 @@ Herramientas web para resolver métodos numéricos **paso a paso**: cada resulta
 | [`index.html`](index.html) | Portada con las herramientas | — |
 | [`metodos_comparacion.html`](metodos_comparacion.html) | **Raíces de ecuaciones** f(x) = 0: bisección, regla falsa, secante, Newton-Raphson y punto fijo | f(x) con la raíz y el camino de cada método |
 | [`sistemas_lineales.html`](sistemas_lineales.html) | **Sistemas 3×3** con Jacobi y Gauss-Seidel | x, y, z por iteración |
-| [`interpolacion.html`](interpolacion.html) | **Interpolación**, con una pestaña por método: Lagrange (lineal y parabólica), Hermite (diferencias divididas) y segmentaria (spline lineal) | El polinomio con los puntos, las pendientes (Hermite) o los tramos (spline) |
+| [`interpolacion.html`](interpolacion.html) | **Interpolación**, con una pestaña por método: Lagrange (lineal y parabólica), Hermite (diferencias divididas) y Splite (spline lineal) | El polinomio con los puntos, las pendientes (Hermite) o los tramos (spline) |
 
 ### Raíces de ecuaciones
 
@@ -35,7 +35,7 @@ Herramientas web para resolver métodos numéricos **paso a paso**: cada resulta
 
 ### Interpolación
 
-Una sola página con tres pestañas; cada una recuerda lo que escribiste y la última pestaña usada.
+Una sola página con tres pestañas (Lagrange, Hermite y Splite) y un solo formulario de hasta 5 puntos (x, f(x) y f'(x)): lo que escribes se comparte entre las pestañas, y cada una usa solo los campos que necesita. Lagrange y Hermite usan hasta 3 puntos; Splite, hasta 5. La página recuerda lo escrito y la última pestaña usada.
 
 #### Lagrange
 
@@ -48,7 +48,7 @@ Una sola página con tres pestañas; cada una recuerda lo que escribiste y la ú
 - Cada x se repite dos veces (z₀ = z₁ = x₀, z₂ = z₃ = x₁, …) y se arma la tabla de diferencias divididas. En las celdas entre z repetidos se usa la derivada en lugar de dividir entre cero.
 - El polinomio sale en forma de Newton, se expande término por término y se **comprueba** con fracciones exactas que H(xⱼ) = f(xⱼ) y H'(xⱼ) = f'(xⱼ).
 
-#### Segmentaria (spline lineal)
+#### Splite (spline lineal)
 
 - **Entrada:** de 2 a 5 puntos. Acepta enteros, fracciones (`1/2`) y decimales (`0.5` o `0,5`); se convierten a fracciones exactas. Los puntos se ordenan por x antes de armar los tramos.
 - En cada tramo [xₖ, xₖ₊₁] se calcula la pendiente f[xₖ₊₁, xₖ] y la recta P(x) = yₖ + f[xₖ₊₁, xₖ](x − xₖ), que se desarrolla hasta quedar como mx + b.

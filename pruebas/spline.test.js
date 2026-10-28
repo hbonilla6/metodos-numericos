@@ -174,12 +174,12 @@ describe('página del spline lineal', () => {
 
   it('Limpiar borra los campos, los resultados y lo guardado', () => {
     const pagina = resolver([['0', '2'], ['1', '3']]);
-    assert.ok(pagina.w.localStorage.getItem('spline_campos'));
+    assert.ok(pagina.w.localStorage.getItem('interpolacion_campos'));
     pagina.clic(pagina.boton('Limpiar'));
     assert.strictEqual(pagina.d.getElementById('x0').value, '');
     assert.strictEqual(pagina.d.getElementById('resultCard').style.display, 'none');
     assert.strictEqual(pagina.d.getElementById('graficaCard').style.display, 'none');
-    assert.strictEqual(pagina.w.localStorage.getItem('spline_campos'), null);
+    assert.strictEqual(pagina.w.localStorage.getItem('interpolacion_campos'), null);
     pagina.cerrar();
   });
 });

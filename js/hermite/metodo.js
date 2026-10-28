@@ -6,7 +6,6 @@
 
 const metodoHermite = {
   clave: 'hermite',
-  claveDeGuardado: 'hermite_campos',
   cantidadDePuntos: 3,
   campos: [
     { prefijo: 'x', ayuda: 'x' },
@@ -15,8 +14,6 @@ const metodoHermite = {
   ],
   nota: "Escribe cada punto con su valor f(x) y su derivada f'(x). Con 2 puntos el polinomio es de grado 3; con 3 puntos, de grado 5. El tercer punto es opcional.",
   mensajeIncompleto: "Completa x, f(x) y f'(x) en cada punto que uses.",
-  etiqueta: i => 'x' + aSubindice(i),
-  opcional: i => i === 2 ? '(opcional)' : '',
 
   /** Dibuja el resultado; devuelve el mensaje de error si los datos no sirven. */
   resolver(escritos) {
