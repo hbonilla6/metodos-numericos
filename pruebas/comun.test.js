@@ -4,7 +4,7 @@ const { abrirPagina, cargarModulos } = require('./ayudas');
 
 describe('guardado en el navegador (almacenamiento.js)', () => {
   it('guarda y recupera valores; borra; un guardado dañado se ignora', () => {
-    const p = abrirPagina('hermite.html');
+    const p = abrirPagina('interpolacion.html', 'hermite');
     p.w.eval('guardarValores("prueba", { a: "1", b: "dos" })');
     assert.deepStrictEqual(JSON.parse(JSON.stringify(p.w.eval('leerValores("prueba")'))), { a: '1', b: 'dos' });
     p.w.eval('olvidarValores("prueba")');
@@ -15,7 +15,7 @@ describe('guardado en el navegador (almacenamiento.js)', () => {
     p.cerrar();
   });
   it('restaurarCampos escribe solo lo que no está vacío y avisa si restauró algo', () => {
-    const p = abrirPagina('hermite.html');
+    const p = abrirPagina('interpolacion.html', 'hermite');
     p.w.localStorage.setItem('clave', JSON.stringify({ x0: '7', f0: '', d0: '9', x1: undefined }));
     assert.strictEqual(p.w.eval('restaurarCampos("clave", ["x0", "f0", "d0", "x1"])'), true);
     assert.strictEqual(p.d.getElementById('x0').value, '7');
@@ -27,7 +27,7 @@ describe('guardado en el navegador (almacenamiento.js)', () => {
     p.cerrar();
   });
   it('guardarCampos guarda el contenido actual de los campos', () => {
-    const p = abrirPagina('hermite.html');
+    const p = abrirPagina('interpolacion.html', 'hermite');
     p.d.getElementById('x0').value = '3';
     p.d.getElementById('f0').value = '-4';
     p.w.eval('guardarCampos("otra", ["x0", "f0"])');
@@ -35,7 +35,7 @@ describe('guardado en el navegador (almacenamiento.js)', () => {
     p.cerrar();
   });
   it('si el navegador no permite guardar (modo privado), nada se rompe', () => {
-    const p = abrirPagina('hermite.html');
+    const p = abrirPagina('interpolacion.html', 'hermite');
     Object.defineProperty(p.w, 'localStorage', { get() { throw new Error('bloqueado'); } });
     assert.doesNotThrow(() => p.w.eval('guardarValores("x", { a: 1 })'));
     assert.strictEqual(p.w.eval('leerValores("x")'), null);
@@ -60,7 +60,7 @@ describe('utilidades', () => {
     for (const v of ['0', ' 0 ', 'x', 0 === 1 ? '' : '-']) assert.strictEqual(vacio(v), false, JSON.stringify(v));
   });
   it('mostrarEstado escribe el mensaje con su tipo, y lo borra sin mensaje o sin tipo', () => {
-    const p = abrirPagina('hermite.html');
+    const p = abrirPagina('interpolacion.html', 'hermite');
     p.w.eval('mostrarEstado("Algo pasó", "error")');
     assert.strictEqual(p.html('statusBox'), '<div class="status error">Algo pasó</div>');
     p.w.eval('mostrarEstado("", "error")');
@@ -125,7 +125,7 @@ describe('colores de las celdas (tabla-interactiva.js)', () => {
 
 describe('interacción de la tabla en una página real', () => {
   it('seleccionar una celda marca solo esa celda y su fila; tocar otra mueve la selección', () => {
-    const p = abrirPagina('hermite.html');
+    const p = abrirPagina('interpolacion.html', 'hermite');
     [[-2, -12, 22], [1, 9, 10]].forEach(([x, f, d], i) => { p.escribir('x' + i, x); p.escribir('f' + i, f); p.escribir('d' + i, d); });
     p.clic(p.boton('Resolver'));
     p.clic(p.d.querySelector('td[data-campo="c2"][data-idx="0"]'));
@@ -138,7 +138,7 @@ describe('interacción de la tabla en una página real', () => {
     p.cerrar();
   });
   it('tocar una referencia dentro de la explicación hace pulsar esa celda con su color', () => {
-    const p = abrirPagina('hermite.html');
+    const p = abrirPagina('interpolacion.html', 'hermite');
     [[-2, -12, 22], [1, 9, 10]].forEach(([x, f, d], i) => { p.escribir('x' + i, x); p.escribir('f' + i, f); p.escribir('d' + i, d); });
     p.clic(p.boton('Resolver'));
     p.clic(p.d.querySelector('td[data-campo="c3"][data-idx="0"]'));

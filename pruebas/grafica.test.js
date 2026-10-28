@@ -245,7 +245,7 @@ describe('gráfica de interpolación', () => {
 describe('gráfica de Hermite', () => {
   for (const caso of referencias.hermite.slice(0, 20)) {
     it(JSON.stringify(caso.puntos), () => {
-      const pagina = abrirPagina('hermite.html');
+      const pagina = abrirPagina('interpolacion.html', 'hermite');
       caso.puntos.forEach(([x, f, d], i) => { pagina.escribir('x' + i, x); pagina.escribir('f' + i, f); pagina.escribir('d' + i, d); });
       pagina.clic(pagina.boton('Resolver'));
       const svg = pagina.d.querySelector('#grafica svg');

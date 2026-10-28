@@ -120,7 +120,7 @@ describe('página de Lagrange: validaciones', () => {
 // ------------------------------------------------------------------ Hermite
 
 function resolverHermite(puntos) {
-  const pagina = abrirPagina('hermite.html');
+  const pagina = abrirPagina('interpolacion.html', 'hermite');
   puntos.forEach(([x, f, d], i) => { pagina.escribir('x' + i, x); pagina.escribir('f' + i, f); pagina.escribir('d' + i, d); });
   pagina.clic(pagina.boton('Resolver'));
   return pagina;
@@ -234,7 +234,7 @@ describe('página de Hermite: validaciones', () => {
   it('no enteros avisan', () => assert.match(mensaje([[0, 1, 1.5], [1, 2, 3]]), /Usa números enteros/));
   it('x repetidas avisan', () => assert.match(mensaje([[1, 1, 1], [1, 2, 3]]), /deben ser distintos/));
   it('con un solo punto no se muestra nada', () => {
-    const pagina = abrirPagina('hermite.html');
+    const pagina = abrirPagina('interpolacion.html', 'hermite');
     pagina.escribir('x0', '1'); pagina.escribir('f0', '1'); pagina.escribir('d0', '1');
     pagina.clic(pagina.boton('Resolver'));
     assert.strictEqual(pagina.texto('statusBox'), '');
@@ -246,6 +246,44 @@ describe('página de Hermite: validaciones', () => {
     pagina.clic(pagina.boton('Limpiar'));
     for (const id of ['tablaCard', 'resultCard', 'graficaCard']) assert.strictEqual(pagina.d.getElementById(id).style.display, 'none');
     assert.strictEqual(pagina.w.localStorage.getItem('hermite_campos'), null);
+    pagina.cerrar();
+  });
+});
+
+describe('página de interpolación: pestañas', () => {
+  const pestanaActiva = pagina => [...pagina.d.querySelectorAll('.tab-btn.activo')].map(boton => boton.dataset.metodo);
+
+  it('abre en Lagrange y cambia los campos al elegir otra pestaña', () => {
+    const pagina = abrirPagina('interpolacion.html');
+    assert.deepStrictEqual(pestanaActiva(pagina), ['lagrange']);
+    assert.strictEqual(pagina.d.getElementById('d0'), null);
+    pagina.clic(pagina.d.getElementById('tab-hermite'));
+    assert.deepStrictEqual(pestanaActiva(pagina), ['hermite']);
+    assert.ok(pagina.d.getElementById('d0'));
+    pagina.clic(pagina.d.getElementById('tab-spline'));
+    assert.ok(pagina.d.getElementById('x4'));
+    assert.deepStrictEqual(pagina.errores, []);
+    pagina.cerrar();
+  });
+  it('cada método conserva lo que se escribió en su pestaña', () => {
+    const pagina = abrirPagina('interpolacion.html');
+    pagina.escribir('x0', '1'); pagina.escribir('f0', '2');
+    pagina.clic(pagina.d.getElementById('tab-hermite'));
+    assert.strictEqual(pagina.d.getElementById('x0').value, '');
+    pagina.clic(pagina.d.getElementById('tab-lagrange'));
+    assert.strictEqual(pagina.d.getElementById('x0').value, '1');
+    pagina.cerrar();
+  });
+  it('al cambiar de pestaña no queda el resultado del método anterior', () => {
+    const pagina = resolverLagrange([[0, 2], [1, 3]]);
+    assert.strictEqual(pagina.d.getElementById('resultCard').style.display, 'block');
+    pagina.clic(pagina.d.getElementById('tab-hermite'));
+    for (const id of ['tablaCard', 'resultCard', 'graficaCard']) assert.strictEqual(pagina.d.getElementById(id).style.display, 'none');
+    pagina.cerrar();
+  });
+  it('recuerda la pestaña elegida', () => {
+    const pagina = abrirPagina('interpolacion.html', 'spline');
+    assert.strictEqual(JSON.parse(pagina.w.localStorage.getItem('interpolacion_pestana')).clave, 'spline');
     pagina.cerrar();
   });
 });
