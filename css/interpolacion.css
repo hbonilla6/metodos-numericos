@@ -37,6 +37,9 @@ input.coef { width: 80px; text-align: center; padding: 8px 6px; }
   text-align: center;
 }
 
+/* Un término con su expansión y su resultado en la misma línea; en pantallas angostas el resultado baja */
+.termino-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+
 /* ---------- Pantallas pequeñas ---------- */
 
 @media (max-width: 460px) {
@@ -47,4 +50,5 @@ input.coef { width: 80px; text-align: center; padding: 8px 6px; }
 }
 @media (shape: round) {
   .pt-row { justify-content: center; }
+  .termino-fila { justify-content: center; }
 }

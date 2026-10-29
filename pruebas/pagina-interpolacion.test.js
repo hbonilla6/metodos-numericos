@@ -47,13 +47,13 @@ describe('página de Lagrange: cada paso del procedimiento vale lo mismo que el 
         // paso 1: la fórmula de Lagrange con los puntos sustituidos (un solo número a la derecha del "=")
         const paso1 = valorDeFormula(formulas[0][0], x).filter(v => v !== null).pop();
         assert.ok(Math.abs(paso1 - esperado) < 1e-8 * Math.max(1, Math.abs(esperado)), `paso 1 en x = ${x}: ${paso1} contra ${esperado}`);
-        // paso 3: cada término simplificado; la suma de los términos es el polinomio
-        const terminos = formulas[2].map(f => valorDeFormula(f, x).filter(v => v !== null).pop());
+        // paso 2: cada término simplificado; la suma de los términos es el polinomio
+        const terminos = formulas[1].map(f => valorDeFormula(f.querySelector('.simplificado'), x).filter(v => v !== null).pop());
         const suma = terminos.reduce((a, b) => a + b, 0);
         assert.ok(Math.abs(suma - esperado) < 1e-8 * Math.max(1, Math.abs(esperado)), `suma de términos en x = ${x}`);
-        // paso 4 (si hay más de dos puntos... con dos también): la suma escrita
-        const paso4 = valorDeFormula(formulas[3][0], x).filter(v => v !== null).pop();
-        assert.ok(Math.abs(paso4 - esperado) < 1e-8 * Math.max(1, Math.abs(esperado)), `paso 4 en x = ${x}`);
+        // paso 3: la suma escrita
+        const paso4 = valorDeFormula(formulas[2][0], x).filter(v => v !== null).pop();
+        assert.ok(Math.abs(paso4 - esperado) < 1e-8 * Math.max(1, Math.abs(esperado)), `paso 3 en x = ${x}`);
       }
       pagina.cerrar();
     });
@@ -61,15 +61,14 @@ describe('página de Lagrange: cada paso del procedimiento vale lo mismo que el 
   it('cada término expandido: numerador ÷ denominador × f(xᵢ) = término simplificado', () => {
     const pagina = resolverLagrange([[1, 3], [4, 18], [6, 38]]);
     const pasos = [...pagina.d.querySelectorAll('#pasos .paso')];
-    const expandidos = [...pasos[1].querySelectorAll('.formula')];
-    const simplificados = [...pasos[2].querySelectorAll('.formula')];
+    const filas = [...pasos[1].querySelectorAll('.termino-fila')];
     for (const x of [-2, 1.5, 9]) {
-      expandidos.forEach((formula, k) => {
-        // "Término k: frac(poly, den) · (f)": solo hay números tras los dos puntos
-        const copia = formula.cloneNode(true);
-        const texto = aExpresion(copia, () => null).replace(/\s+/g, '').replace(/^Término\d+:/, '').replace(/x/g, '(' + x + ')');
+      filas.forEach((fila, k) => {
+        // frac(poly, den) · (f): solo hay números una vez sustituida x
+        const copia = fila.querySelector('.expandido').cloneNode(true);
+        const texto = aExpresion(copia, () => null).replace(/\s+/g, '').replace(/x/g, '(' + x + ')');
         const valor = evaluarNumerico(texto);
-        const simple = valorDeFormula(simplificados[k], x).filter(v => v !== null).pop();
+        const simple = valorDeFormula(fila.querySelector('.simplificado'), x).filter(v => v !== null).pop();
         assert.ok(Math.abs(valor - simple) < 1e-8 * Math.max(1, Math.abs(simple)), `término ${k + 1}, x = ${x}: ${valor} contra ${simple}`);
       });
     }

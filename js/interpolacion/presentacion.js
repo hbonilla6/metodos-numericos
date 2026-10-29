@@ -1,6 +1,6 @@
 /* ==========================================================================
    Cómo se muestra el procedimiento de Lagrange: fórmulas con fracciones,
-   términos expandidos y polinomio final.
+   términos expandidos y simplificados, y polinomio final.
    ========================================================================== */
 
 /** El factor (a − b) escrito sin calcular. */
@@ -24,17 +24,14 @@ function procedimientoEnHtml(resultado, puntos) {
   let html = pasoEnHtml('Fórmula de Lagrange con tus puntos',
     '<div class="formula">P(x) = ' + terminosSustituidos.join(' + ') + '</div>');
 
-  // Paso 2: cada término con el numerador expandido y el denominador como número
-  html += pasoEnHtml('Expandiendo cada término', terminos.map((termino, i) =>
-    '<div class="formula">Término ' + (i + 1) + ': ' +
-    fraccion(polinomioEnHtml(termino.numerador), fraccionATexto(termino.denominador)) +
-    ' · (' + fraccionEnHtml(termino.fi) + ')</div>').join(''));
+  // Paso 2: cada término expandido y, en la misma línea, ya simplificado
+  html += pasoEnHtml('Cada término, expandido y simplificado', terminos.map((termino, i) =>
+    '<div class="formula termino-fila"><span>Término ' + (i + 1) + ':</span> ' +
+    '<span class="expandido">' + fraccion(polinomioEnHtml(termino.numerador), fraccionATexto(termino.denominador)) +
+    ' · (' + fraccionEnHtml(termino.fi) + ')</span> = ' +
+    '<span class="simplificado">' + polinomioEnHtml(termino.terminoFinal) + '</span></div>').join(''));
 
-  // Paso 3: cada término ya multiplicado y dividido
-  html += pasoEnHtml('Cada término simplificado', terminos.map((termino, i) =>
-    '<div class="formula">Término ' + (i + 1) + ' = ' + polinomioEnHtml(termino.terminoFinal) + '</div>').join(''));
-
-  // Paso 4: suma de términos semejantes
+  // Paso 3: suma de términos semejantes
   if (terminos.length > 1) {
     html += pasoEnHtml('Sumando términos semejantes',
       '<div class="formula">P(x) = ' + terminos.map(t => '(' + polinomioEnHtml(t.terminoFinal) + ')').join(' + ') + '</div>');
