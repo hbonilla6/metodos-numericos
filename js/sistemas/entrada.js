@@ -21,11 +21,11 @@ function dibujarCamposDelSistema() {
     html += '<div class="eq-row">';
     html += '<span class="eq-num">(' + (i + 1) + ')</span>';
     for (let j = 0; j < TAMANO; j++) {
-      html += '<input class="coef" id="a' + i + j + '" placeholder="1" autocomplete="off">';
+      html += '<input type="number" step="any" class="coef" id="a' + i + j + '" placeholder="1" autocomplete="off">';
       html += '<span class="var-label">' + NOMBRES_VARIABLES[j] + '</span>';
       html += '<span class="op">' + (j < TAMANO - 1 ? '+' : '=') + '</span>';
     }
-    html += '<input class="coef" id="b' + i + '" placeholder="0" autocomplete="off">';
+    html += '<input type="number" step="any" class="coef" id="b' + i + '" placeholder="0" autocomplete="off">';
     html += '</div>';
   }
   document.getElementById('ecuaciones').innerHTML = html;
