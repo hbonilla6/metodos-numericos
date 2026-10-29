@@ -28,9 +28,9 @@ function dibujarCamposDeLosPuntos() {
   for (let i = 0; i < PUNTOS_EN_FORMULARIO; i++) {
     html += '<div class="pt-row" data-punto="' + i + '">';
     html += '<span class="pt-label">x' + i + ', f' + i + '</span>';
-    html += '<input type="number" step="any" class="coef" id="x' + i + '" placeholder="x" autocomplete="off">';
-    html += '<input type="number" step="any" class="coef" id="f' + i + '" placeholder="f(x)" autocomplete="off">';
-    html += '<input type="number" step="any" class="coef campo-derivada" id="d' + i + '" placeholder="f\'(x)" autocomplete="off">';
+    html += '<input class="coef" id="x' + i + '" placeholder="x" autocomplete="off">';
+    html += '<input class="coef" id="f' + i + '" placeholder="f(x)" autocomplete="off">';
+    html += '<input class="coef campo-derivada" id="d' + i + '" placeholder="f\'(x)" autocomplete="off">';
     if (i >= 2) html += '<span class="pt-opcional">(opcional)</span>';
     html += '</div>';
   }

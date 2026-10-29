@@ -398,8 +398,3 @@ td.celda-raiz.selected { background: #85600c !important; }
 .leyenda { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 0.88rem; color: var(--ink-soft); }
 .leyenda-item { display: inline-flex; align-items: center; gap: 6px; }
 .leyenda-color { width: 14px; height: 4px; border-radius: 2px; display: inline-block; }
-
-/* Campos numéricos: sin flechas, para que quepa el número y el teclado sea numérico en el celular */
-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
