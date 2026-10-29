@@ -1,6 +1,6 @@
 /* ==========================================================================
    Cómo se muestra el procedimiento de Lagrange: fórmulas con fracciones,
-   términos expandidos y simplificados, y polinomio final.
+   términos expandidos y polinomio final.
    ========================================================================== */
 
 /** El factor (a − b) escrito sin calcular. */
@@ -24,19 +24,15 @@ function procedimientoEnHtml(resultado, puntos) {
   let html = pasoEnHtml('Fórmula de Lagrange con tus puntos',
     '<div class="formula">P(x) = ' + terminosSustituidos.join(' + ') + '</div>');
 
-  // Paso 2: los términos en columnas, cada uno con su expansión y su resultado
-  html += pasoEnHtml('Cada término, expandido y simplificado',
-    '<div class="terminos-columnas">' + terminos.map((termino, i) =>
-      '<div class="formula termino-columna"><div class="termino-titulo">Término ' + (i + 1) + '</div>' +
-      '<div class="expandido">' + fraccion(polinomioEnHtml(termino.numerador), fraccionATexto(termino.denominador)) +
-      ' · (' + fraccionEnHtml(termino.fi) + ')</div>' +
-      '<div class="simplificado">= ' + polinomioEnHtml(termino.terminoFinal) + '</div></div>').join('') + '</div>');
+  // Paso 2: cada fracción con el numerador expandido y el denominador ya calculado, en una sola línea
+  html += pasoEnHtml('Expandiendo cada término',
+    '<div class="formula">P(x) = ' + terminos.map(termino =>
+      fraccion(polinomioEnHtml(termino.numerador), fraccionATexto(termino.denominador)) +
+      ' · (' + fraccionEnHtml(termino.fi) + ')').join(' + ') + '</div>');
 
-  // Paso 3: suma de términos semejantes
-  if (terminos.length > 1) {
-    html += pasoEnHtml('Sumando términos semejantes',
-      '<div class="formula">P(x) = ' + terminos.map(t => '(' + polinomioEnHtml(t.terminoFinal) + ')').join(' + ') + '</div>');
-  }
+  // Paso 3: cada término ya multiplicado y dividido, en una sola línea
+  html += pasoEnHtml('Cada término simplificado',
+    '<div class="formula">P(x) = ' + terminos.map(t => '(' + polinomioEnHtml(t.terminoFinal) + ')').join(' + ') + '</div>');
 
   return html + '<div class="resultado">P(x) = ' + polinomioEnHtml(total) + '</div>';
 }
