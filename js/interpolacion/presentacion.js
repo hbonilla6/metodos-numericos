@@ -24,12 +24,13 @@ function procedimientoEnHtml(resultado, puntos) {
   let html = pasoEnHtml('Fórmula de Lagrange con tus puntos',
     '<div class="formula">P(x) = ' + terminosSustituidos.join(' + ') + '</div>');
 
-  // Paso 2: cada término expandido y, en la misma línea, ya simplificado
-  html += pasoEnHtml('Cada término, expandido y simplificado', terminos.map((termino, i) =>
-    '<div class="formula termino-fila"><span>Término ' + (i + 1) + ':</span> ' +
-    '<span class="expandido">' + fraccion(polinomioEnHtml(termino.numerador), fraccionATexto(termino.denominador)) +
-    ' · (' + fraccionEnHtml(termino.fi) + ')</span> = ' +
-    '<span class="simplificado">' + polinomioEnHtml(termino.terminoFinal) + '</span></div>').join(''));
+  // Paso 2: los términos en columnas, cada uno con su expansión y su resultado
+  html += pasoEnHtml('Cada término, expandido y simplificado',
+    '<div class="terminos-columnas">' + terminos.map((termino, i) =>
+      '<div class="formula termino-columna"><div class="termino-titulo">Término ' + (i + 1) + '</div>' +
+      '<div class="expandido">' + fraccion(polinomioEnHtml(termino.numerador), fraccionATexto(termino.denominador)) +
+      ' · (' + fraccionEnHtml(termino.fi) + ')</div>' +
+      '<div class="simplificado">= ' + polinomioEnHtml(termino.terminoFinal) + '</div></div>').join('') + '</div>');
 
   // Paso 3: suma de términos semejantes
   if (terminos.length > 1) {

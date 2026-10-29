@@ -61,7 +61,7 @@ describe('página de Lagrange: cada paso del procedimiento vale lo mismo que el 
   it('cada término expandido: numerador ÷ denominador × f(xᵢ) = término simplificado', () => {
     const pagina = resolverLagrange([[1, 3], [4, 18], [6, 38]]);
     const pasos = [...pagina.d.querySelectorAll('#pasos .paso')];
-    const filas = [...pasos[1].querySelectorAll('.termino-fila')];
+    const filas = [...pasos[1].querySelectorAll('.termino-columna')];
     for (const x of [-2, 1.5, 9]) {
       filas.forEach((fila, k) => {
         // frac(poly, den) · (f): solo hay números una vez sustituida x

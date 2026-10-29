@@ -37,8 +37,11 @@ input.coef { width: 80px; text-align: center; padding: 8px 6px; }
   text-align: center;
 }
 
-/* Un término con su expansión y su resultado en la misma línea; en pantallas angostas el resultado baja */
-.termino-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+/* Los términos van uno al lado del otro; en pantallas angostas pasan a la línea siguiente */
+.terminos-columnas { display: flex; flex-wrap: wrap; gap: 12px; }
+.termino-columna { flex: 1 1 140px; margin: 0; padding: 8px 12px; border: 1px dashed var(--line); border-radius: 3px; overflow-x: auto; }
+.formula.termino-columna + .formula.termino-columna { margin-top: 0; padding-top: 8px; border-top: 1px dashed var(--line); }
+.termino-titulo { font-family: 'Source Sans 3', sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--muted); }
 
 /* ---------- Pantallas pequeñas ---------- */
 
@@ -50,5 +53,6 @@ input.coef { width: 80px; text-align: center; padding: 8px 6px; }
 }
 @media (shape: round) {
   .pt-row { justify-content: center; }
-  .termino-fila { justify-content: center; }
+  .terminos-columnas { justify-content: center; }
+  .termino-columna { text-align: center; }
 }
