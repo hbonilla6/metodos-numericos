@@ -1,0 +1,4 @@
+/* Estilos que comparten las páginas de integración, ecuaciones diferenciales y diferenciación */
+
+.comparacion { margin: 10px 0 0; text-align: center; color: var(--ink-soft); }
+.formula-chica { font-size: 0.92rem; }

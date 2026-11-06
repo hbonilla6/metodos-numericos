@@ -2,7 +2,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert');
 const { cargarModulos, referencias, valorDeHtml, htmlAElemento, aExpresion, evaluarNumerico, Decimal } = require('./ayudas');
 
-const m = cargarModulos(['comun/notacion.js', 'comun/formato.js', 'comun/tabla-interactiva.js', 'raices/expresion.js', 'raices/derivada.js', 'raices/formulas.js']);
+const m = cargarModulos(['comun/notacion.js', 'comun/formato.js', 'comun/tabla-interactiva.js', 'comun/expresion.js', 'comun/derivada.js', 'comun/formulas.js']);
 const T = n => m.traer(n);
 const aNumero = fraccion => { const [n, d] = fraccion.split('/'); return Number(n) / Number(d); };
 const cerca = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(b));
@@ -129,5 +129,43 @@ describe('referencias y enlaces dentro de las explicaciones', () => {
     grafo.agregar(T('celdaDe')('xi', 2), T('celdaDe')('b', 2));
     assert.deepStrictEqual(JSON.parse(JSON.stringify(grafo.de('xi', 2))), [{ campo: 'a', idx: 2 }, { campo: 'b', idx: 2 }]);
     assert.deepStrictEqual(Array.from(grafo.de('a', 2)), []);
+  });
+});
+
+describe('funciones, constantes y la variable y dibujadas', () => {
+  const desdeTokens = (texto, variables = ['x']) => htmlAElemento(T('tokensAHtml')(T('construirFuncion')(texto, variables).tokens, nombre => nombre, v => v));
+  const desdeArbol = texto => htmlAElemento(T('arbolAHtml')(T('construirFuncion')(texto).arbol));
+
+  it('sqrt se dibuja como raíz, también dentro de una resta', () => {
+    for (const dibujo of [desdeTokens('1-sqrt(x)'), desdeArbol('1-sqrt(x)')]) {
+      assert.ok(dibujo.querySelector('.raiz .raiz-cont'));
+      assert.strictEqual(dibujo.querySelector('.raiz-cont').textContent, 'x');
+      assert.ok(dibujo.textContent.startsWith('1 − '));
+    }
+  });
+  it('exp y e^… se dibujan con exponente', () => {
+    assert.strictEqual(desdeTokens('e^(x^2)').textContent, 'ex2');
+    assert.ok(desdeTokens('e^(x^2)').querySelector('sup'));
+    assert.strictEqual(desdeTokens('exp(x)').querySelector('sup').textContent, 'x');
+    assert.strictEqual(desdeTokens('e^x').querySelector('sup').textContent, 'x');
+  });
+  it('sin se escribe sen y pi como π', () => {
+    assert.strictEqual(desdeTokens('sin(x)').textContent, 'sen(x)');
+    assert.strictEqual(desdeTokens('sen(2x)').textContent, 'sen(2 · x)');
+    assert.strictEqual(desdeTokens('2pi').textContent, '2 · π');
+  });
+  it('sen(x)/x se dibuja como fracción', () => {
+    const dibujo = desdeTokens('sin(x)/x');
+    assert.strictEqual(dibujo.querySelector('.frac-num').textContent, 'sen(x)');
+    assert.strictEqual(dibujo.querySelector('.frac-den').textContent, 'x');
+  });
+  it('la y se dibuja con el nombre que se le pida', () => {
+    assert.strictEqual(desdeTokens('2xy', ['x', 'y']).textContent, '2 · x · y');
+    const marcada = T('tokensAHtml')(T('construirFuncion')('x+y', ['x', 'y']).tokens, nombre => '[' + nombre + ']', v => v);
+    assert.strictEqual(marcada, '[x] + [y]');
+  });
+  it('una función sin cerrar mientras se escribe no rompe el dibujo', () => {
+    assert.doesNotThrow(() => T('tokensAHtml')(T('tokenizar')('sqrt('), nombre => nombre, v => v));
+    assert.doesNotThrow(() => T('tokensAHtml')(T('tokenizar')('sin'), nombre => nombre, v => v));
   });
 });

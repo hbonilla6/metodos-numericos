@@ -187,7 +187,7 @@ function actualizarVistaPrevia() {
   if (estaVacio(texto)) { panel.innerHTML = ''; return; }
 
   try {
-    const tokens = tokenizar(prepararExpresion(texto));
+    const tokens = tokenizar(texto);
     const arbol = construirArbol(tokens); // valida que se pueda leer completa
     mostrarFormulaEnPanel(tokens, 'f(x) = ', 'fxDisplay');
 

@@ -2,7 +2,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert');
 const { cargarModulos, referencias, casiIguales, Decimal } = require('./ayudas');
 
-const m = cargarModulos(['comun/formato.js', 'raices/expresion.js', 'raices/derivada.js', 'raices/metodos.js', 'raices/punto-fijo.js']);
+const m = cargarModulos(['comun/formato.js', 'comun/expresion.js', 'comun/derivada.js', 'raices/metodos.js', 'raices/punto-fijo.js']);
 const T = n => m.traer(n);
 const D = valor => new Decimal(valor);
 const TOL = D('1e-7');

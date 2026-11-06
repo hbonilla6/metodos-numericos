@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Diferenciación numérica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css?v=fd38c182">
+<link rel="stylesheet" href="css/resultados.css?v=01cff650">
+</head>
+<body>
+
+<div class="wrap">
+  <a class="volver" href="index.html">← Inicio</a>
+
+  <div class="card">
+    <div class="field-row">
+      <div class="field field-fx">
+        <label for="fx">f(x)</label>
+        <input id="fx" type="text" placeholder="ej: sqrt(3 + x)" autocomplete="off">
+        <span class="hint">Usa * y ^ para potencias, y sqrt, exp, sin, cos, tan, ln, e y pi.</span>
+      </div>
+      <div class="field field-corto">
+        <label for="x0">x₀</label>
+        <input id="x0" type="text" placeholder="ej: 1" autocomplete="off">
+      </div>
+      <div class="field field-corto">
+        <label for="h">Paso h</label>
+        <input id="h" type="text" placeholder="ej: 0.1" autocomplete="off">
+      </div>
+    </div>
+    <div id="fxDisplay" class="fx-display"></div>
+
+    <div class="btn-row">
+      <button id="btnResolver">Resolver</button>
+      <button id="btnLimpiar" class="secundario">Limpiar</button>
+    </div>
+  </div>
+
+  <div id="statusBox"></div>
+
+  <div class="card" id="resultCard" style="display:none;">
+    <div id="pasos"></div>
+  </div>
+
+  <div class="card grafica-tarjeta" id="graficaCard">
+    <h2>Gráfica</h2>
+    <div id="grafica"></div>
+    <div class="leyenda" id="graficaLeyenda"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
+<script src="js/comun/notacion.js?v=025c979a"></script>
+<script src="js/comun/formato.js?v=28745c21"></script>
+<script src="js/comun/utilidades.js?v=d649b291"></script>
+<script src="js/comun/almacenamiento.js?v=248534f9"></script>
+<script src="js/comun/grafica.js?v=3de5ee40"></script>
+<script src="js/comun/expresion.js?v=3a53da28"></script>
+<script src="js/comun/derivada.js?v=c789c39b"></script>
+<script src="js/comun/formulas.js?v=4630be1e"></script>
+<script src="js/diferenciacion/metodos.js?v=4c087dcd"></script>
+<script src="js/diferenciacion/presentacion.js?v=4733cc16"></script>
+<script src="js/diferenciacion/grafica.js?v=aa6a64bd"></script>
+<script src="js/diferenciacion/pagina.js?v=14fc67a8"></script>
+</body>
+</html>

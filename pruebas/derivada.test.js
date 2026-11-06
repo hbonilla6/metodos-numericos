@@ -2,7 +2,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert');
 const { cargarModulos, referencias, decimalDeFraccion, casiIguales, Decimal } = require('./ayudas');
 
-const m = cargarModulos(['comun/formato.js', 'raices/expresion.js', 'raices/derivada.js']);
+const m = cargarModulos(['comun/formato.js', 'comun/expresion.js', 'comun/derivada.js']);
 const T = n => m.traer(n);
 const construirFuncion = texto => T('construirFuncion')(texto);
 
@@ -106,5 +106,34 @@ describe('terminosDeSuma reparte f(x) en términos con su signo', () => {
         assert.ok(casiIguales(suma, f(new Decimal(x)), '1e-30'), expresion + ' en ' + x);
       }
     }
+  });
+});
+
+describe('derivadas de funciones elementales (contra diferencias centrales con h pequeño)', () => {
+  const derivada = texto => T('derivarFuncion')(construirFuncion(texto));
+  const numerica = (texto, x) => {
+    const f = construirFuncion(texto);
+    const h = new Decimal('1e-12');
+    return f(new Decimal(x).plus(h)).minus(f(new Decimal(x).minus(h))).dividedBy(h.times(2));
+  };
+  const expresiones = ['sqrt(x)', '1-sqrt(x)', 'sqrt(3+x)', 'exp(x)', 'e^(x^2)', 'exp(2x)', 'ln(x)', 'ln(x^2+1)', 'sin(x)', 'cos(x)', 'tan(x)', 'sin(x)/x',
+    'x*sin(x)', 'sin(x^2)', '2^x', 'e^x*cos(x)', 'sqrt(x^2+1)', 'x^2*exp(-x)', 'cos(2x)^2'];
+  for (const expresion of expresiones) {
+    it(`${expresion}`, () => {
+      const d = derivada(expresion);
+      for (const x of ['0.5', '1', '1.7', '2.3']) {
+        assert.ok(casiIguales(d(x), numerica(expresion, x), '1e-9'), `f'(${x}): ${d(x)} contra ${numerica(expresion, x)}`);
+      }
+    });
+  }
+  it('e^(x^2) se deriva como 2·x·e^(x^2) sin cadenas sobrantes', () => {
+    const texto = derivada('e^(x^2)').arbol;
+    assert.strictEqual(texto.tipo, 'binario');
+  });
+  it('una potencia con base variable y exponente variable sigue rechazada', () => {
+    assert.throws(() => derivada('x^x'), /EXPONENTE_NO_CONSTANTE/);
+  });
+  it('una expresión con y no se puede derivar', () => {
+    assert.throws(() => T('derivarFuncion')(T('construirFuncion')('x*y', ['x', 'y'])));
   });
 });

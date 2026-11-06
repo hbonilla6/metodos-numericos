@@ -75,9 +75,17 @@ function simplificarBinario(nodo) {
   return nodoBinario(op, izquierda, derecha);
 }
 
+function simplificarFuncion(nodo) {
+  const argumento = simplificar(nodo.argumento);
+  if (nodo.nombre === 'ln' && argumento.tipo === 'constante' && argumento.nombre === 'e') return nodoDesdeNumero(1);
+  if (nodo.nombre === 'exp' && esNumero(argumento, 0)) return nodoDesdeNumero(1);
+  return nodoFuncion(nodo.nombre, argumento);
+}
+
 function simplificar(nodo) {
   if (nodo.tipo === 'negativo') return simplificarNegativo(nodo);
   if (nodo.tipo === 'binario') return simplificarBinario(nodo);
+  if (nodo.tipo === 'funcion') return simplificarFuncion(nodo);
   return nodo;
 }
 
@@ -88,11 +96,31 @@ function valorDeExponente(nodo) {
   return null;
 }
 
-/** Derivada de un árbol respecto de x (suma, producto, cociente y potencias con exponente numérico). */
+/** Derivada de una función de un argumento, con la regla de la cadena (la derivada del argumento va primero). */
+function derivarFuncionElemental(nodo) {
+  const { nombre, argumento } = nodo;
+  const interna = derivarArbol(argumento);
+  const porLaInterna = factor => simplificar(nodoBinario('*', interna, factor));
+
+  switch (nombre) {
+    case 'sqrt': return simplificar(nodoBinario('/', interna, nodoBinario('*', nodoDesdeNumero(2), nodo)));
+    case 'exp': return porLaInterna(nodo);
+    case 'ln': return simplificar(nodoBinario('/', interna, argumento));
+    case 'sin': return porLaInterna(nodoFuncion('cos', argumento));
+    case 'cos': return simplificar(nodoNegativo(porLaInterna(nodoFuncion('sin', argumento))));
+    case 'tan': return simplificar(nodoBinario('/', interna, nodoBinario('^', nodoFuncion('cos', argumento), nodoDesdeNumero(2))));
+  }
+  throw new Error('No se pudo derivar esta expresión.');
+}
+
+/** Derivada de un árbol respecto de x (suma, producto, cociente, potencias y funciones elementales). */
 function derivarArbol(nodo) {
   switch (nodo.tipo) {
-    case 'numero': return nodoDesdeNumero(0);
-    case 'variable': return nodoDesdeNumero(1);
+    case 'numero': case 'constante': return nodoDesdeNumero(0);
+    case 'variable':
+      if (nombreDeVariable(nodo) !== 'x') throw new Error('No se pudo derivar esta expresión.');
+      return nodoDesdeNumero(1);
+    case 'funcion': return derivarFuncionElemental(nodo);
     case 'negativo': return simplificar(nodoNegativo(derivarArbol(nodo.argumento)));
     case 'binario': {
       const { op, izquierda, derecha } = nodo;
@@ -114,6 +142,13 @@ function derivarArbol(nodo) {
       }
       if (op === '^') {
         const exponente = valorDeExponente(derecha);
+        const baseConstante = izquierda.tipo === 'numero' || izquierda.tipo === 'constante';
+        if (exponente === null && baseConstante && contieneVariable(derecha)) {
+          // b^v con b constante: b^v · ln(b) · v'
+          const logaritmo = simplificar(nodoFuncion('ln', izquierda));
+          const conLogaritmo = simplificar(nodoBinario('*', logaritmo, nodo));
+          return simplificar(nodoBinario('*', derivarArbol(derecha), conLogaritmo));
+        }
         if (exponente === null) throw new Error('EXPONENTE_NO_CONSTANTE');
         const potenciaMenor = simplificar(nodoBinario('^', izquierda, nodoDesdeDecimal(exponente.minus(1))));
         const conReglaDeLaCadena = simplificar(nodoBinario('*', potenciaMenor, derivarArbol(izquierda)));

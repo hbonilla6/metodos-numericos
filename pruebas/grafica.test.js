@@ -329,7 +329,7 @@ describe('gráfica de raíces', () => {
         const svg = pagina.d.querySelector('#grafica svg');
         if (pagina.d.getElementById('graficaCard').style.display === 'none') { pagina.cerrar(); return; }
         const t = transformacion(svg);
-        const f = new (require('./ayudas').Decimal)(0) && cargarModulos(['comun/formato.js', 'raices/expresion.js']).traer('construirFuncion')(caso.expresion);
+        const f = new (require('./ayudas').Decimal)(0) && cargarModulos(['comun/formato.js', 'comun/expresion.js']).traer('construirFuncion')(caso.expresion);
         for (const v of verticesDeCurva(svg)) {
           const r = estaSobreLaCurva(v, x => f(new Decimal(x)).toNumber(), t);
           assert.ok(r.cerca, `x = ${r.x}: dibujado ${r.real}, debía ser ${r.esperado}`);

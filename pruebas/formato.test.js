@@ -14,12 +14,17 @@ describe('formatear: números sin ceros de sobra', () => {
     ['2.99999999999', '3'], ['-2.99999999999', '−3'], ['0.00000000049', '0.0000000005'],
     ['4.9e-11', '4.9 × 10<sup>−11</sup>'], ['1e-11', '1 × 10<sup>−11</sup>'], ['-1.2345e-13', '−1.2345 × 10<sup>−13</sup>'],
     ['1e-10', '0.0000000001'],                        // justo en el umbral, todavía se escribe completo
+    ['1e21', '1 × 10<sup>21</sup>'], ['-3.5e30', '−3.5 × 10<sup>30</sup>'], ['1.23456789e25', '1.2346 × 10<sup>25</sup>'],
+    ['1e20', '100000000000000000000'],                // todavía se escribe completo
   ];
   for (const [entrada, esperado] of casos) {
     it(entrada + ' → ' + esperado, () => {
       assert.strictEqual(formatear(D(entrada)), esperado);
     });
   }
+  it('un número con exponente gigantesco no agota la memoria', () => {
+    assert.strictEqual(formatear(D('1e1000000000')), '1 × 10<sup>1000000000</sup>');
+  });
   it('null y undefined se muestran como guion largo', () => {
     assert.strictEqual(formatear(null), '—');
     assert.strictEqual(formatear(undefined), '—');

@@ -132,7 +132,8 @@ describe('página de raíces: avisos y estados', () => {
   });
   it('f(x) mal escrita avisa', () => {
     assert.match(estado(generar('x^', '1', '2')), /Revisa f\(x\), a, b y la tolerancia/);
-    assert.match(estado(generar('sin(x)', '1', '2')), /Revisa f\(x\)/);
+    assert.match(estado(generar('foo(x)', '1', '2')), /Revisa f\(x\)/);
+    assert.match(estado(generar('x + y', '1', '2')), /Revisa f\(x\)/);
   });
   it('sin cambio de signo en [a, b]: avisa con f(a)·f(b)', () => {
     const pagina = generar('x^2 - 4', '3', '5');

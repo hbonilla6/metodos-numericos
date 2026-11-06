@@ -4,11 +4,21 @@
    ========================================================================== */
 
 const SIMBOLO_EN_PANTALLA = { '+': '+', '-': '−', '*': '·', '/': '÷', '^': '^' };
+const SIMBOLO_DE_CONSTANTE = { e: 'e', pi: 'π' };
+const NOMBRE_EN_PANTALLA = { sin: 'sen', cos: 'cos', tan: 'tan', ln: 'ln' };
+
+/** Una función elemental ya con su argumento dibujado: √(…), e^(…), sen(…). */
+function funcionEnHtml(nombre, interiorHtml) {
+  if (nombre === 'sqrt') return raizEnesima(2, interiorHtml);
+  if (nombre === 'exp') return 'e<sup>' + interiorHtml + '</sup>';
+  return NOMBRE_EN_PANTALLA[nombre] + '(' + interiorHtml + ')';
+}
 
 // ---------- Desde un árbol (se usa para derivadas y g(x), que no tienen tokens propios) ----------
 
 /** ¿El nodo necesita paréntesis según dónde se escribe? ('suelto' = sin nada alrededor que lo exija) */
 function necesitaParentesis(nodo, contexto) {
+  if (nodo.tipo === 'funcion') return nodo.nombre === 'exp' && contexto === 'base-de-potencia';
   if (nodo.tipo === 'negativo') return contexto !== 'suelto';
   if (nodo.tipo !== 'binario') return false;
 
@@ -54,13 +64,15 @@ function sumaOrestaEnHtml(nodo, dibujarVariable) {
          arbolConParentesis(derecha, contextoDerecha, dibujarVariable);
 }
 
-/** Dibuja un árbol. `dibujarVariable` decide cómo se escribe la x (por defecto, "x"). */
+/** Dibuja un árbol. `dibujarVariable(nombre)` decide cómo se escribe la x (por defecto, "x"). */
 function arbolAHtml(nodo, dibujarVariable) {
-  dibujarVariable = dibujarVariable || (() => 'x');
+  dibujarVariable = dibujarVariable || (nombre => nombre);
 
   switch (nodo.tipo) {
     case 'numero': return formatear(new Decimal(nodo.valor));
-    case 'variable': return dibujarVariable();
+    case 'variable': return dibujarVariable(nombreDeVariable(nodo));
+    case 'constante': return SIMBOLO_DE_CONSTANTE[nodo.nombre];
+    case 'funcion': return funcionEnHtml(nodo.nombre, arbolAHtml(nodo.argumento, dibujarVariable));
     case 'negativo': return '−' + arbolConParentesis(nodo.argumento, 'negativo', dibujarVariable);
     case 'binario': {
       const { op, izquierda, derecha } = nodo;
@@ -136,10 +148,21 @@ function unirElementos(elementos) {
 
 /**
  * Dibuja la lista de tokens como fórmula en HTML.
- *   dibujarVariable()           cómo se escribe la x
+ *   dibujarVariable(nombre)     cómo se escribe cada variable (x, o y en las ecuaciones diferenciales)
  *   dibujarNumero(valor, indice) cómo se escribe cada número (el índice es su lugar entre los tokens)
  */
 function tokensAHtml(tokens, dibujarVariable, dibujarNumero) {
+
+  /** Un número, una variable, una constante o una función con su argumento; devuelve su HTML y dónde sigue. */
+  function leerUnidadSimple(i) {
+    const token = tokens[i];
+    if (token.tipo === 'VARIABLE') return { html: dibujarVariable(token.nombre), siguiente: i + 1 };
+    if (token.tipo === 'CONSTANTE') return { html: SIMBOLO_DE_CONSTANTE[token.nombre], siguiente: i + 1 };
+    if (token.tipo === 'NUMERO') return { html: dibujarNumero(token.valor, i), siguiente: i + 1 };
+    if (!tokens[i + 1] || tokens[i + 1].tipo !== '(') return { html: NOMBRE_EN_PANTALLA[token.nombre] || token.nombre, siguiente: i + 1 };
+    const dentro = leerElementos(i + 2, true);
+    return { html: funcionEnHtml(token.nombre, unirElementos(dentro.elementos)), siguiente: dentro.siguiente + 1 };
+  }
 
   /** Lee los tokens desde `inicio` hasta cerrar el paréntesis (si `dentroDeParentesis`) o hasta el final. */
   function leerElementos(inicio, dentroDeParentesis) {
@@ -161,16 +184,21 @@ function tokensAHtml(tokens, dibujarVariable, dibujarNumero) {
         i = dentro.siguiente + 1;
         continue;
       }
-      if (token.tipo === 'VARIABLE') { elementos.push({ esUnidad: true, html: dibujarVariable() }); i++; continue; }
-      if (token.tipo === 'NUMERO') { elementos.push({ esUnidad: true, html: dibujarNumero(token.valor, i) }); i++; continue; }
+      if (token.tipo === 'VARIABLE' || token.tipo === 'CONSTANTE' || token.tipo === 'FUNCION' || token.tipo === 'NUMERO') {
+        const unidad = leerUnidadSimple(i);
+        elementos.push({ esUnidad: true, html: unidad.html });
+        i = unidad.siguiente;
+        continue;
+      }
 
       if (token.tipo === '^') {
         i++;
         let exponente = '';
         if (tokens[i] && tokens[i].tipo === '-') { exponente += '−'; i++; }
-        if (tokens[i] && tokens[i].tipo === 'NUMERO') {
-          exponente += dibujarNumero(tokens[i].valor, i);
-          i++;
+        if (tokens[i] && ['NUMERO', 'VARIABLE', 'CONSTANTE', 'FUNCION'].includes(tokens[i].tipo)) {
+          const unidad = leerUnidadSimple(i);
+          exponente += unidad.html;
+          i = unidad.siguiente;
         } else if (tokens[i] && tokens[i].tipo === '(') {
           const dentro = leerElementos(i + 1, true);
           exponente += unirElementos(dentro.elementos);
@@ -210,7 +238,7 @@ function tokensSustituidos(tokens, valorHtml) {
 
 /** Muestra una fórmula en un panel; cada número queda marcado para poder señalarlo desde las explicaciones. */
 function mostrarFormulaEnPanel(tokens, prefijo, idDelPanel) {
-  const cuerpo = tokensAHtml(tokens, () => 'x',
+  const cuerpo = tokensAHtml(tokens, nombre => nombre,
     (valor, indice) => '<span class="fx-token" id="fx-tok-' + indice + '">' + valor + '</span>');
   const panel = document.getElementById(idDelPanel);
   if (panel) panel.innerHTML = prefijo + cuerpo;

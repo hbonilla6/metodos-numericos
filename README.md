@@ -12,11 +12,14 @@ Herramientas web para resolver métodos numéricos **paso a paso**: cada resulta
 | [`metodos_comparacion.html`](metodos_comparacion.html) | **Raíces de ecuaciones** f(x) = 0: bisección, regla falsa, secante, Newton-Raphson y punto fijo | f(x) con la raíz y el camino de cada método |
 | [`sistemas_lineales.html`](sistemas_lineales.html) | **Sistemas 3×3** con Jacobi y Gauss-Seidel | x, y, z por iteración |
 | [`interpolacion.html`](interpolacion.html) | **Interpolación**, con una pestaña por método: Lagrange (lineal y parabólica), Hermite (diferencias divididas) y Splite (spline lineal) | El polinomio con los puntos, las pendientes (Hermite) o los tramos (spline) |
+| [`integracion.html`](integracion.html) | **Integración numérica**, con una pestaña por método: punto medio, trapecio y Simpson (compuestos) | f(x) con los rectángulos, trapecios o parábolas del método |
+| [`ecuaciones_diferenciales.html`](ecuaciones_diferenciales.html) | **Ecuaciones diferenciales** y′ = f(x, y) con Euler y Heun (Euler mejorado) | Los puntos del método y, si se da, la solución exacta |
+| [`diferenciacion.html`](diferenciacion.html) | **Diferenciación numérica** de f′(x₀) con cinco fórmulas a la vez | f(x), la tangente exacta y las rectas de cada aproximación |
 
 ### Raíces de ecuaciones
 
 - **Entrada:** f(x), los extremos `a` y `b` (o `x₀` y `x₁`) y la tolerancia (por defecto 10⁻⁷).
-- **Escribir f(x):** usa `x`, números con punto decimal, `+ − * / ^` y paréntesis. La multiplicación puede ir implícita: `2x^3 - x^2 - 3`, `(x+1)(x-1)`. No hay funciones como `sin` o `ln`.
+- **Escribir f(x):** usa `x`, números con punto decimal, `+ − * / ^` y paréntesis. La multiplicación puede ir implícita: `2x^3 - x^2 - 3`, `(x+1)(x-1)`. También acepta `sqrt`, `exp`, `sin` (o `sen`), `cos`, `tan`, `ln` y las constantes `e` y `pi`: `x - cos(x)`, `e^x - 3`.
 - **Los cinco métodos** se corren al mismo tiempo; la pestaña con ★ es la que llega a la tolerancia en menos iteraciones y se abre sola (si tocas una pestaña a mano, ya no cambia).
 - **Tabla interactiva:** al tocar una celda se explica cómo se calculó, con la fórmula, la sustitución y el resultado; las celdas de las que depende se pintan del mismo color que su referencia en la explicación. Los números de f(x) y los datos de entrada parpadean al tocarlos desde la explicación.
 - **Newton-Raphson** deriva f(x) simbólicamente y muestra la derivada término por término.
@@ -54,15 +57,52 @@ Una sola página con tres pestañas (Lagrange, Hermite y Splite) y un solo formu
 - En cada tramo [xₖ, xₖ₊₁] se calcula la pendiente f[xₖ₊₁, xₖ] y la recta P(x) = yₖ + f[xₖ₊₁, xₖ](x − xₖ), que se desarrolla hasta quedar como mx + b.
 - El resultado se escribe como polinomio por tramos, con el intervalo de cada uno.
 
+### Integración numérica
+
+Una sola página con tres pestañas (punto medio, trapecio y Simpson) y un solo formulario: f(x), los límites `a` y `b` y el número de subintervalos `n` (de 1 a 200). Los límites aceptan números, fracciones y expresiones sin variable (`1/2`, `pi/2`, `sqrt(2)`).
+
+- **Fórmulas compuestas:** con h = (b − a)/n,
+  - punto medio: h · Σ f(x̄ᵢ), con x̄ᵢ = (xᵢ₋₁ + xᵢ)/2;
+  - trapecio: h/2 · [f(a) + 2 Σ f(xᵢ) + f(b)];
+  - Simpson: h/6 · [f(a) + 4 Σ₂ + 2 Σ₁ + f(b)], donde Σ₁ suma los f(xᵢ) interiores y Σ₂ los f de los puntos medios.
+  Con n = 1 se obtienen las fórmulas simples.
+- **Procedimiento:** la fórmula, el cálculo de h, la tabla (xᵢ, puntos medios, f y pesos), las sumas y el resultado, con cada sustitución escrita.
+- **Valor exacto:** cuando f es una suma de términos c·xᵖ (polinomios, raíces, potencias negativas) se calcula con la primitiva y se muestra el error absoluto. Con otras funciones (`sin`, `e^x`…) solo se muestra la aproximación.
+- **Gráfica:** f(x) y la figura que usa el método sobre cada subintervalo.
+
+### Ecuaciones diferenciales
+
+Dos pestañas (Euler y Heun) con un formulario compartido: y′ = f(x, y), x₀, y₀, el punto xₙ donde aproximar y el número de pasos `n` (de 1 a 200). En f se puede usar `x` e `y`, por ejemplo `2*x*y`.
+
+- **Euler:** yᵢ₊₁ = yᵢ + h · f(xᵢ, yᵢ).
+- **Heun:** yᵢ₊₁* = yᵢ + h · f(xᵢ, yᵢ) y yᵢ₊₁ = yᵢ + h/2 · [f(xᵢ, yᵢ) + f(xᵢ₊₁, yᵢ₊₁*)].
+- **Procedimiento:** h, los dos primeros pasos con sus valores sustituidos y la tabla completa.
+- **Solución exacta (opcional):** si se escribe en términos de x (`e^(x^2)`), la tabla agrega y(xᵢ) y el error de cada fila.
+- **Avisos:** si f no está definida en un nodo, o si la aproximación crece sin límite, se indica en qué punto.
+
+### Diferenciación numérica
+
+Una página que calcula f′(x₀) con cinco fórmulas a la vez, a partir de f(x), x₀ y el paso h:
+
+| Fórmula | Expresión | Error |
+|---|---|---|
+| Hacia adelante | [f(x₀+h) − f(x₀)] / h | O(h) |
+| Hacia atrás | [f(x₀) − f(x₀−h)] / h | O(h) |
+| Centrales | [f(x₀+h) − f(x₀−h)] / 2h | O(h²) |
+| 3 puntos | (1/2h)·[−3f(x₀) + 4f(x₀+h) − f(x₀+2h)] | O(h²) |
+| 5 puntos | (1/12h)·[f(x₀−2h) − 8f(x₀−h) + 8f(x₀+h) − f(x₀+2h)] | O(h⁴) |
+
+Muestra la derivada exacta (derivación simbólica), un resumen con el error de cada fórmula y el detalle de cada una con los valores de f y la sustitución. Si una fórmula necesita un punto donde f no está definida, solo esa fila queda sin resultado.
+
 ## Qué usamos para que los cálculos sean exactos y correctos
 
 No hay frameworks ni dependencias que instalar. Solo **una librería externa** y herramientas del propio navegador:
 
 | Qué | Para qué | Dónde se usa |
 |---|---|---|
-| [**decimal.js 10.4.3**](https://github.com/MikeMcl/decimal.js) (por CDN) | Aritmética decimal de **40 dígitos significativos**. Evita los errores típicos de `0.1 + 0.2` de los números de JavaScript y permite iterar sin arrastrar error de redondeo. | Raíces y sistemas |
+| [**decimal.js 10.4.3**](https://github.com/MikeMcl/decimal.js) (por CDN) | Aritmética decimal de **40 dígitos significativos**. Evita los errores típicos de `0.1 + 0.2` de los números de JavaScript y permite iterar sin arrastrar error de redondeo. | Raíces, sistemas, integración, ecuaciones diferenciales y diferenciación |
 | **`BigInt`** (nativo del navegador) | **Fracciones exactas**: numerador y denominador enteros sin límite, siempre simplificados. No hay redondeo en ningún paso. | Lagrange, Hermite y spline |
-| **Analizador y derivador propios** | Convierte el texto de f(x) en un árbol, lo evalúa con `Decimal` y lo deriva simbólicamente (suma, producto, cociente y potencias con exponente numérico). **No usa `eval`**, así que nada de lo escrito se ejecuta como código. | Raíces |
+| **Analizador y derivador propios** | Convierte el texto de f(x) (o de f(x, y)) en un árbol, lo evalúa con `Decimal` y lo deriva simbólicamente (operaciones, potencias, `sqrt`, `exp`, `ln`, `sin`, `cos`, `tan` y las constantes `e` y `pi`). **No usa `eval`**, así que nada de lo escrito se ejecuta como código. | Todas las herramientas de f(x) |
 | **Gráficas SVG propias** (`js/comun/grafica.js`) | Dibuja curvas, puntos y segmentos sin librerías: funciona sin internet y se adapta al ancho de la pantalla. | Todas las herramientas |
 | `localStorage` | Recuerda lo escrito y la casilla "Mostrar error" en ese navegador. Si el navegador no lo permite, todo sigue funcionando sin guardar. | Todas las herramientas |
 | Google Fonts (Literata y Source Sans 3) | Solo tipografía. | Todas las páginas |
@@ -75,11 +115,11 @@ Detalles que cuidan la corrección:
 - Hay una batería de pruebas automáticas (ver [Pruebas](#pruebas)).
 - Los números que se muestran se pueden copiar sin sorpresas: el contador de dígitos repetidos lo dibuja el CSS y no forma parte del texto.
 
-**Limitaciones conocidas:** la interpolación solo acepta enteros; los sistemas son siempre de 3×3; punto fijo solo despeja polinomios sencillos; f(x) no admite funciones trascendentes (`sin`, `ln`, `e^x`).
+**Limitaciones conocidas:** la interpolación solo acepta enteros; los sistemas son siempre de 3×3; punto fijo solo despeja polinomios sencillos; en integración, el valor exacto solo se calcula para sumas de términos c·xᵖ; las funciones se escriben con paréntesis (`sin(x)`, no `sin x`); los ángulos van en radianes.
 
 ## Pruebas
 
-Más de 1 300 pruebas automáticas comprueban los cálculos y también lo que se muestra en pantalla. Se necesita Node.js 22 o superior:
+Más de 1 600 pruebas automáticas comprueban los cálculos y también lo que se muestra en pantalla. Se necesita Node.js 22 o superior:
 
 ```bash
 npm install     # una sola vez (instala decimal.js y jsdom, solo para las pruebas)
@@ -90,6 +130,7 @@ npm test        # corre todas las pruebas (≈ 1 minuto)
 
 - **Contra una referencia independiente.** `pruebas/referencias/generar_referencias.py` calcula, solo con la biblioteca estándar de Python (`fractions` y `decimal` de 80 dígitos), los valores esperados: evaluación y derivada de 30 expresiones en 10 puntos, 86 interpolaciones de Lagrange y 81 de Hermite (resueltas como sistemas lineales exactos, con la tabla de diferencias divididas completa), 25 sistemas 3×3 (solución exacta, determinante, orden de ecuaciones y 16 iteraciones de Jacobi y de Gauss-Seidel) y las tablas completas de bisección, regla falsa, secante, Newton y punto fijo para 9 funciones. Cada método está escrito de nuevo desde la fórmula del libro. Para regenerar el archivo: `python pruebas/referencias/generar_referencias.py`.
 - **Propiedades matemáticas.** Álgebra de fracciones y polinomios con miles de casos al azar; `simplificar` no cambia el valor y la derivada simbólica coincide con diferencias finitas en cientos de árboles al azar; la bisección siempre mantiene la raíz encerrada y reduce el intervalo a la mitad; Jacobi y Gauss-Seidel contra el radio espectral de su matriz de iteración (4 000 sistemas al azar) y contra el teorema de la diagonal dominante.
+- **Integración, ecuaciones diferenciales y diferenciación.** Cada método se comprueba con sus ejemplos de referencia, con polinomios al azar donde la fórmula debe ser exacta (Simpson hasta grado 3, la fórmula de 5 puntos hasta grado 4, Heun con y′ dependiente solo de x), con identidades entre métodos (S = (T + 2M)/3 y T₂ₙ = (Tₙ + Mₙ)/2) y con el orden de convergencia al reducir h a la mitad.
 - **Lo que se ve.** Se abren las páginas completas y se pulsa cada celda de cada tabla: en cada explicación se evalúa como número cada paso de la fórmula (con las referencias a otras celdas sustituidas por su valor) y todos los pasos de una misma cadena deben dar el mismo resultado. Las fórmulas dibujadas con fracciones y raíces se evalúan y deben valer lo mismo que la función. Las gráficas se leen con los números de sus ejes: la curva debe ser f(x), la raíz debe quedar sobre el eje x, las tangentes de Newton deben cruzar donde dicen, y lo que sube debe verse arriba.
 - **Mutaciones.** Se rompió el código a propósito de 36 maneras distintas (signos, fórmulas, criterios de paro, ejes, dependencias…) y se comprobó que alguna prueba lo detecta; las que sobrevivieron al principio llevaron a escribir pruebas nuevas.
 
@@ -124,28 +165,34 @@ El sitio se publica solo con **GitHub Pages**: cada `push` a `main` ejecuta [`.g
 ```
 index.html, *.html     páginas (solo estructura; sin estilos ni lógica)
 css/
-  base.css             estilos compartidos: variables, tarjetas, botones, pestañas, tablas, fórmulas, gráficas
+  base.css             estilos compartidos: variables, tarjetas, campos, botones, pestañas, tablas, fórmulas, pasos, gráficas
   portada.css          portada
   raices.css           raíces de ecuaciones
   sistemas.css         sistemas de ecuaciones
   interpolacion.css    interpolación (campos y pasos de las tres pestañas)
   hermite.css          pestaña de Hermite
   spline.css           pestaña de spline lineal (expresión por tramos)
+  resultados.css       integración, ecuaciones diferenciales y diferenciación (comparaciones y fórmulas auxiliares)
 js/
   comun/               piezas que usan varias páginas
     notacion.js          subíndices, fracciones y raíces en HTML
     formato.js           números Decimal para mostrar (3.0000 → 3)
     algebra-exacta.js    fracciones (BigInt) y polinomios exactos, y su escritura en HTML
-    utilidades.js        mensajes de estado, retardo al escribir, pasos titulados
+    utilidades.js        mensajes de estado, retardo al escribir, pasos titulados, fórmulas y tablas de resultados
+    expresion.js         texto → tokens → árbol → función (f(x) y f(x, y)), y números escritos como expresión
+    derivada.js          simplificar y derivar el árbol de una expresión
+    formulas.js          dibuja árboles y tokens como fórmulas en HTML (fracciones, raíces, exponentes)
     almacenamiento.js    guardar lo escrito en el navegador
     tabla-interactiva.js selección de celdas, colores y enlaces de las explicaciones
     grafica.js           graficador SVG
-  raices/              expresion, derivada, metodos, punto-fijo, formulas, comparacion,
-                       explicaciones, tabla, grafica, pagina
+  raices/              metodos, punto-fijo, comparacion, explicaciones, tabla, grafica, entrada, estado, pagina
   sistemas/            matematica, entrada, despeje, tabla, explicaciones, veredicto, grafica, pagina
   interpolacion/       lagrange, presentacion, grafica, metodo (pestaña de Lagrange) y pagina (pestañas y campos)
   hermite/             diferencias, estado, tabla, explicaciones, presentacion, grafica, metodo (pestaña de Hermite)
   spline/              spline, presentacion, grafica, metodo (pestaña del spline)
+  integracion/         metodos (punto medio, trapecio, Simpson y valor exacto), presentacion, grafica, pagina
+  edo/                 metodos (Euler y Heun), presentacion, grafica, pagina
+  diferenciacion/      metodos (las cinco fórmulas y la derivada exacta), presentacion, grafica, pagina
 pruebas/               pruebas automáticas (ver Pruebas) y sus referencias calculadas con Python
 scripts/               versionar-recursos.js: pone la versión (?v=…) a los css y js de los HTML
 package.json           solo declara las dependencias de las pruebas; el sitio no las necesita
@@ -157,7 +204,7 @@ Cada página carga sus scripts al final del `<body>`, en orden: primero `comun/`
 
 Los archivos se separan por tarea, de lo más puro a lo más cercano a la pantalla:
 
-- **Matemática** (sin tocar la pantalla): `matematica.js` en sistemas; `expresion.js`, `derivada.js`, `metodos.js` y `punto-fijo.js` en raíces; `lagrange.js` y `diferencias.js` en interpolación.
+- **Matemática** (sin tocar la pantalla): `matematica.js` en sistemas; `metodos.js` y `punto-fijo.js` en raíces; `lagrange.js` y `diferencias.js` en interpolación; `metodos.js` en integración, ecuaciones diferenciales y diferenciación.
 - **Entrada:** lee y valida lo que se escribe.
 - **Presentación:** tabla, fórmulas, explicaciones, veredicto y gráfica.
 - **`pagina.js`:** une todo y atiende los eventos. Es el único archivo que conoce el orden del flujo.

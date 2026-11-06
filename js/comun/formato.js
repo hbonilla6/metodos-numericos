@@ -7,17 +7,20 @@ Decimal.set({ precision: 40 });
 
 const DECIMALES_VISIBLES = 10;
 const UMBRAL_CIENTIFICO = '1e-10';
+const EXPONENTE_MAXIMO_COMPLETO = 21;
 
 /**
  * Convierte un Decimal en texto legible, sin ceros de sobra:
  * 3.0000000000 → 3, 0.5000 → 0.5, −0 → 0.
- * Los números diminutos salen en notación científica (1.2 × 10⁻¹³) en vez de un "0" engañoso.
+ * Los números diminutos salen en notación científica (1.2 × 10⁻¹³) en vez de un "0" engañoso,
+ * y los gigantescos (desde 10²¹) también, para no escribir cientos de dígitos.
  */
 function formatear(valor) {
   if (valor === null || valor === undefined) return '—';
 
   const esDiminuto = !valor.isZero() && valor.isFinite() && valor.abs().lessThan(UMBRAL_CIENTIFICO);
-  if (esDiminuto) {
+  const esGigantesco = valor.isFinite() && valor.e >= EXPONENTE_MAXIMO_COMPLETO;
+  if (esDiminuto || esGigantesco) {
     const exponente = valor.e;
     const mantisa = valor.dividedBy(new Decimal(10).pow(exponente)).toDecimalPlaces(4).toString().replace('-', '−');
     return mantisa + ' × 10<sup>' + String(exponente).replace('-', '−') + '</sup>';

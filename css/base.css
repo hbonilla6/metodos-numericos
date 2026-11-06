@@ -374,6 +374,79 @@ td.celda-raiz.selected { background: #85600c !important; }
   .final-answer { font-size: 0.85rem; padding: 8px; }
 }
 
+/* ---------- Campos de entrada y vista previa de f(x) (varias páginas) ---------- */
+
+.field-row { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 14px; }
+.field { flex: 1 1 160px; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.field.field-fx { flex: 2 1 260px; }
+.field.field-corto { flex: 1 1 90px; }
+.field.field-tol { flex: 1 1 130px; }
+
+/* ---------- Fórmulas de f(x), g(x) y derivada ---------- */
+
+.fx-display {
+  font-family: 'Literata', serif;
+  font-size: 1.25rem;
+  text-align: center;
+  padding: 12px 14px;
+  margin-top: 10px;
+  background: #f2efe6;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink);
+  min-height: 1.6em;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.fx-display.apoyo { margin-top: 8px; }
+.fx-display .formula-chica { font-size: 0.85em; }
+.fx-display .hint-bloque { display: block; margin-top: 4px; }
+.flecha-tenue { opacity: 0.6; }
+
+.nota-campos { font-size: 0.85rem; color: var(--muted); margin: 0 0 10px; }
+
+/* ---------- Procedimiento ---------- */
+
+.paso { margin-bottom: 20px; }
+.paso:last-child { margin-bottom: 0; }
+.paso-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.resultado {
+  margin-top: 10px;
+  padding: 14px 18px;
+  background: var(--green-soft);
+  border: 1px solid var(--green);
+  border-radius: 3px;
+  color: var(--green);
+  font-weight: 700;
+  font-family: 'Literata', serif;
+  font-size: 1.15rem;
+  text-align: center;
+}
+
+/* Campos en pantallas pequeñas */
+
+@media (max-width: 460px) {
+  .field-row { gap: 10px; }
+  .field { flex-basis: 100% !important; }
+}
+
+@media (max-width: 300px) {
+  .field-row { gap: 8px; }
+}
+
+@media (shape: round) {
+  .field-row { flex-direction: column; gap: 8px; }
+  .field { width: 100%; flex: none !important; }
+}
+
 /* ---------- Gráficas ---------- */
 
 .grafica-tarjeta { display: none; }
