@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Método de Gauss-Seidel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css?v=fd38c182">
+<link rel="stylesheet" href="css/sistemas.css?v=3ef74bf1">
+<link rel="stylesheet" href="css/gauss-seidel.css?v=b2a8183d">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="encabezado-gs">
+    <h1>Método de Gauss-Seidel</h1>
+    <p class="subtitulo-gs">Sistemas de 3 ecuaciones con 3 incógnitas</p>
+  </header>
+
+  <div class="card integrantes">
+    <h2>Integrantes</h2>
+    <ul class="lista-integrantes">
+      <li><span class="nombre">Javier Alejandro Vallecampos Melara</span><span class="carnet">VM100925</span></li>
+      <li><span class="nombre">Victoria Elizabeth Méndez Martínez</span><span class="carnet">MM102325</span></li>
+      <li><span class="nombre">Michelle Abigail Gómez Díaz</span><span class="carnet">GD100325</span></li>
+      <li><span class="nombre">Daniela Gertrudis Mendez Martínez</span><span class="carnet">MM102425</span></li>
+      <li><span class="nombre">Hector Edenilson Bonilla Flores</span><span class="carnet">BF100124</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <p class="nota-campos">Deja vacío si el coeficiente es 1. Escribe 0 si esa variable no aparece. El número después del "=" sí es obligatorio. Para restar, escribe el coeficiente negativo (por ejemplo -2): abajo verás cómo queda tu sistema.</p>
+    <div id="ecuaciones"></div>
+    <div class="vista-previa" id="vistaPrevia" style="display:none;"></div>
+    <div class="btn-row">
+      <button id="btnResolver">Resolver</button>
+      <button id="btnLimpiar" class="secundario">Limpiar</button>
+    </div>
+  </div>
+
+  <div id="statusBox"></div>
+
+  <div class="card" id="resultCard" style="display:none;">
+    <div id="veredicto"></div>
+    <div class="orden-box" id="ordenBox"></div>
+    <label class="opcion-error"><input type="checkbox" id="chkError" checked> Mostrar error</label>
+    <div class="table-scroll">
+      <table class="tabla-resultado" id="resultTable">
+        <thead><tr id="headRow"></tr></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="expandir-box" id="expandirBox"></div>
+    <div class="explain" id="explainBox"></div>
+    <div id="finalAnswerBox"></div>
+  </div>
+
+  <div class="card grafica-tarjeta" id="graficaCard">
+    <h2>Gráfica</h2>
+    <div id="grafica"></div>
+    <div class="leyenda" id="graficaLeyenda"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
+<script src="js/comun/notacion.js?v=025c979a"></script>
+<script src="js/comun/formato.js?v=28745c21"></script>
+<script src="js/comun/utilidades.js?v=d649b291"></script>
+<script src="js/comun/almacenamiento.js?v=248534f9"></script>
+<script src="js/comun/tabla-interactiva.js?v=b415d11c"></script>
+<script src="js/comun/grafica.js?v=3de5ee40"></script>
+<script src="js/sistemas/matematica.js?v=8148e197"></script>
+<script src="js/sistemas/entrada.js?v=3cba60ca"></script>
+<script src="js/sistemas/estado.js?v=da38332a"></script>
+<script src="js/sistemas/despeje.js?v=89f7a64e"></script>
+<script src="js/sistemas/tabla.js?v=ee469591"></script>
+<script src="js/sistemas/explicaciones.js?v=7d618466"></script>
+<script src="js/sistemas/veredicto.js?v=3620424a"></script>
+<script src="js/sistemas/grafica.js?v=7888d852"></script>
+<script src="js/sistemas/pagina-gauss-seidel.js?v=a40acfba"></script>
+</body>
+</html>
