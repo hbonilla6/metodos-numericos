@@ -8,7 +8,7 @@ Herramientas web para resolver métodos numéricos **paso a paso**: cada resulta
 
 | Página | Qué resuelve | Gráfica |
 |---|---|---|
-| [`index.html`](index.html) | Portada con las herramientas | — |
+| [`index.html`](index.html) | **Gauss-Seidel** (página de inicio): sistemas 3×3 solo con Gauss-Seidel, con los integrantes del grupo | x, y, z por iteración |
 | [`metodos_comparacion.html`](metodos_comparacion.html) | **Raíces de ecuaciones** f(x) = 0: bisección, regla falsa, secante, Newton-Raphson y punto fijo | f(x) con la raíz y el camino de cada método |
 | [`sistemas_lineales.html`](sistemas_lineales.html) | **Sistemas 3×3** con Jacobi y Gauss-Seidel | x, y, z por iteración |
 | [`interpolacion.html`](interpolacion.html) | **Interpolación**, con una pestaña por método: Lagrange (lineal y parabólica), Hermite (diferencias divididas) y Splite (spline lineal) | El polinomio con los puntos, las pendientes (Hermite) o los tramos (spline) |
@@ -166,9 +166,9 @@ El sitio se publica solo con **GitHub Pages**: cada `push` a `main` ejecuta [`.g
 index.html, *.html     páginas (solo estructura; sin estilos ni lógica)
 css/
   base.css             estilos compartidos: variables, tarjetas, campos, botones, pestañas, tablas, fórmulas, pasos, gráficas
-  portada.css          portada
   raices.css           raíces de ecuaciones
   sistemas.css         sistemas de ecuaciones
+  gauss-seidel.css     página de inicio (Gauss-Seidel e integrantes)
   interpolacion.css    interpolación (campos y pasos de las tres pestañas)
   hermite.css          pestaña de Hermite
   spline.css           pestaña de spline lineal (expresión por tramos)

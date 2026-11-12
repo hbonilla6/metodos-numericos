@@ -3,7 +3,7 @@ const assert = require('node:assert');
 const { abrirPagina, referencias, valorDeCeldaEnPagina, decimalDeFraccion } = require('./ayudas');
 
 function resolver(A, b) {
-  const pagina = abrirPagina('gauss_seidel.html');
+  const pagina = abrirPagina('index.html');
   A.forEach((fila, i) => {
     fila.forEach((valor, j) => pagina.escribir('a' + i + j, valor));
     pagina.escribir('b' + i, b[i]);
@@ -14,7 +14,7 @@ function resolver(A, b) {
 
 describe('página de Gauss-Seidel', () => {
   it('muestra a los integrantes y no tiene Jacobi', () => {
-    const pagina = abrirPagina('gauss_seidel.html');
+    const pagina = abrirPagina('index.html');
     const texto = pagina.d.querySelector('.wrap').textContent;
     ['VM100925', 'MM102325', 'GD100325', 'MM102425', 'BF100124'].forEach(carnet => assert.ok(texto.includes(carnet), carnet));
     assert.ok(!texto.includes('Jacobi'));
